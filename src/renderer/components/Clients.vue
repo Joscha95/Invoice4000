@@ -8,58 +8,71 @@ const msg = 'Electron + Vue3 template';
       <tr>
         <th>No.</th>
         <th>Name</th>
-        <th>Short</th>
-        <th>Street</th>
-        <th>Zip</th>
-        <th>City</th>
       </tr>
     </thead>
     <tbody>
       
-      <tr v-for="(client,i) in data" :key="i"
-        :class="{active : activeRow==i, selected : selectedRow==i}"
-        @dblclick="activeRow=i"
+      <tr v-for="(client,i) in store.clients" :key="i"
+        :class="{selected : selectedRow==i}"
+        @dblclick="setActiveRow(i)"
         @click="selectedRow=i;">
-        <client-row  :edit="activeRow==i" v-model="data[i]" @changed="dataChanged"> </client-row>
+        <td> {{ client.data.number }} </td>
+        <td> {{ client.name }} </td>
       </tr>
     </tbody>
   </table>
+
+  <div  class="client_editor" :class="{show: store.activeClient }">
+    <div class="background" @click="setActiveRow(null)"></div>
+    <div class="client_editor_inner">
+      <div class="client_editor_form" v-if="store.activeClient">
+        <div class="client_editor_props">
+          <basic-input v-model="store.activeClient.data.number"/>
+          <basic-input v-model="store.activeClient.name"/>
+          <basic-input v-model="store.activeClient.short"/>
+          <basic-input v-model="store.activeClient.data.street"/>
+          <basic-input v-model="store.activeClient.data.city"/>
+          <basic-input v-model="store.activeClient.data.zip"/>
+        </div>
+        <div class="client_editor_invoices">
+        
+        </div>
+      
+      </div>
+    </div>
+    
+  </div>
 </template>
 
 
 <script lang="ts">
-  import clientRow from "./subcomponents/client-row.vue";
+  import basicInput from "./subcomponents/basic-input.vue";
+  import { store } from './../store.js'
 
   export default {
-    expose:['deleteSelected'],
+    expose:['deleteSelected','saveFile'],
     data() {
       return {
-        data:[],
         activeRow:null,
-        selectedRow:null
+        selectedRow:null,
+        store
       }
     },
     components:{
-      clientRow
-    },
-    computed:{
-      selectedClient(){
-        if(!this.selectedRow) return null;
-        return this.data[this.selectedRow];
-      }
-    },
-    mounted() {
-      window.electron.getClients().then(res => JSON.parse(res)).then(res => this.data = res);
+      basicInput
     },
     methods: {
-      dataChanged(){
-        this.saveFile();
-      },
       saveFile() {
-          window.electron.ipcRenderer.send('saveClients', JSON.stringify(this.data));
+          window.electron.ipcRenderer.send('saveClients', JSON.stringify(this.store.clients));
       },
       deleteSelected(){
-        this.data.splice(this.selectedRow,1);
+        if(!this.selectedRow) return;
+        this.store.clients.splice(this.selectedRow,1);
+      },
+      setActiveRow(ind){
+        console.log(ind)
+        this.activeRow = ind;
+        this.store.activeClient = this.store.clients[ind];
       }
     }
   }
@@ -71,12 +84,64 @@ const msg = 'Electron + Vue3 template';
     position: relative;
   }
 
-  tr,td{
-    position: relative;
+  .client_editor,
+  .client_editor .background{
+    position: absolute;
+    top:0;
+    left:0;
+    bottom:0;
+    right:0;
   }
 
+  .client_editor{
+    pointer-events: none;
+  }
+
+  .client_editor.show{
+    pointer-events: all;
+  }
+
+  .client_editor .background{
+    background-color: rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: opacity .3s ease;
+  }
+
+  .client_editor.show .background{
+    opacity:1;
+  }
+  .client_editor_inner{
+    position: absolute;
+    width:50%;
+    right:0;
+    top:0;
+    bottom:0;
+    background-color: white;
+    transition: transform .3s ease;
+    transform: translate(100%);
+    padding: 1em;
+    font-size:2em;
+    box-sizing:border-box;
+  }
+
+  .client_editor.show .client_editor_inner{
+    transform:translate(0%);
+  }
+
+  .client_editor_props{
+    display: grid;
+  }
+
+  td,th{
+    position: relative;
+    cursor: pointer;
+    padding: .5em;
+    font-weight:normal;
+  }
+
+
   tr.selected{
-    background-color: lightblue;
+    background-color: var(--lightblue);
   }
 
   tr.active{

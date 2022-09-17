@@ -1,6 +1,6 @@
 <template>
 
-    <div @dblclick="edit=true" @blur="edit=false" @input="updateValue" :contenteditable="edit">{{ modelValue }}</div>
+    <div @dblclick="edit=true" @blur="edit=false" @focusout="edit=false" @input="updateValue" :contenteditable="edit">{{ modelValue }}</div>
   
 </template>
 
@@ -26,7 +26,7 @@ export default {
 
 <style>
     div[contenteditable="false"]{
-        white-space: nowrap;
+        background-color: var(--lightgray);
     }
     div[contenteditable="true"]{
         background-color: var(--gray);

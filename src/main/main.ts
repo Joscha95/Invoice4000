@@ -1,4 +1,4 @@
-import {app, BrowserWindow, ipcMain, session} from 'electron';
+import {app, BrowserWindow, ipcMain, session, globalShortcut} from 'electron';
 import {join} from 'path';
 const fs = require('fs');
 
@@ -27,7 +27,8 @@ function createWindow () {
 }
 
 app.whenReady().then(() => {
-  ipcMain.handle('clients:get', handleGetClients)
+  ipcMain.handle('clients:get', handleGetClients);
+
   createWindow();
 
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
