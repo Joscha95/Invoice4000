@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import Clients from './components/Clients.vue'
 import Header from './components/Header.vue'
-import { store } from './store.js'
+import InvoiceForm from './components/InvoiceForm.vue'
+import Invoices from './components/Invoices.vue'
+import Client from './classes/Client'
+import Invoice from './classes/Invoice'
+import store from './store'
 
 window.electron.ipcRenderer.send('message', 'Hello from App.vue!');
 </script>
@@ -10,6 +14,8 @@ window.electron.ipcRenderer.send('message', 'Hello from App.vue!');
   <div id="app">
     <Header @click="headerClicked"/>
     <Clients ref="client"> </Clients>
+    <Invoices/>
+    <InvoiceForm/>
   </div>
 </template>
 
@@ -29,16 +35,10 @@ export default {
             this.$refs.client.deleteSelected();
           break;
         case 'client:add':
-            this.store.clients.push({
-              name: 'name',
-              short: 'handle',
-              data:{
-                number: ("00" + (parseInt(this.store.clients[this.store.clients.length-1].data.number)+1)).slice(-3),
-                street: 'street',
-                city: 'city',
-                zip: 'zip'
-              }
-            })
+            this.store.clients.push(new Client(("00" + (parseInt(this.store.clients[this.store.clients.length-1].number)+1)).slice(-3)))
+          break;
+        case 'invoice:new':
+            this.store.addInvoice(new Invoice('0',this.store.selectedClient || this.store.clients[0]))
           break;
       
         default:
@@ -49,7 +49,7 @@ export default {
   },
   mounted(){
     window.electron.getClients().then(res => JSON.parse(res)).then(res => {
-      store.clients = res;
+      store.setClients(res);
     });
 
     window.onkeydown = (event)=>{
@@ -75,10 +75,18 @@ export default {
     --gray:rgb(200,200,200);
     --lightblue:rgb(227, 227, 227) ;
     --lightgreen:rgb(213, 235, 213) ;
+    --anthrazite: rgb(40, 40, 40);
+    --text-darkbg:rgb(250, 250, 250);
+
+    --fs0: 2rem;
+    --fs1: calc(var(--fs0)*.6);
+    --fs2: calc(var(--fs0)*.45);
   }
 
   body{
-    font-size:1.1em;
+    font-size:var(--fs1);
     font-family:sans-serif;
+    padding:0;
+    margin:0;
   }
 </style>

@@ -1,6 +1,6 @@
 <template>
 
-    <div @dblclick="edit=true" @blur="edit=false" @focusout="edit=false" @input="updateValue" :contenteditable="edit">{{ modelValue }}</div>
+    <div @dblclick="edit=true" @blur="edit=false" @focusout="edit=false" @input="updateValue" :contenteditable="edit" :style="`--span:${span || '6'}`" >{{ modelValue }}</div>
   
 </template>
 
@@ -12,7 +12,8 @@ export default {
         }
     },
     props:{
-        modelValue: ''
+        modelValue: '',
+        span: ''
     },
     methods: {
         updateValue(e){
@@ -26,13 +27,15 @@ export default {
 
 <style>
     div[contenteditable="false"]{
-        background-color: var(--lightgray);
+        white-space: nowrap;
+        overflow: hidden;
     }
     div[contenteditable="true"]{
         background-color: var(--gray);
         appearance: none;
         border:0;
         outline: 0;
+        white-space: normal;
     }
 
 </style>

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-const msg = 'Electron + Vue3 template';
 </script>
 
 <template>
@@ -13,29 +12,33 @@ const msg = 'Electron + Vue3 template';
     <tbody>
       
       <tr v-for="(client,i) in store.clients" :key="i"
-        :class="{selected : selectedRow==i}"
-        @dblclick="setActiveRow(i)"
-        @click="selectedRow=i;">
-        <td> {{ client.data.number }} </td>
+        :class="{selected : selectedClient==client}"
+        @dblclick="setActiveClient(client)"
+        @click="selectedClient = client;">
+        <td> {{ client.number }} </td>
         <td> {{ client.name }} </td>
       </tr>
     </tbody>
   </table>
 
   <div  class="client_editor" :class="{show: store.activeClient }">
-    <div class="background" @click="setActiveRow(null)"></div>
-    <div class="client_editor_inner">
-      <div class="client_editor_form" v-if="store.activeClient">
-        <div class="client_editor_props">
-          <basic-input v-model="store.activeClient.data.number"/>
-          <basic-input v-model="store.activeClient.name"/>
+    <div class="background" @click="setActiveClient(null)"></div>
+    <div class="ce_inner">
+      <div class="ce_form" v-if="store.activeClient">
+        <div class="ce_props">
+          <basic-input v-model="store.activeClient.number" :span="1"/>
+          <basic-input v-model="store.activeClient.name" :span="5"/>
           <basic-input v-model="store.activeClient.short"/>
-          <basic-input v-model="store.activeClient.data.street"/>
-          <basic-input v-model="store.activeClient.data.city"/>
-          <basic-input v-model="store.activeClient.data.zip"/>
+          <basic-input v-model="store.activeClient.street"/>
+          <basic-input v-model="store.activeClient.city"/>
+          <basic-input v-model="store.activeClient.zip"/>
+          <basic-input v-model="store.activeClient.contact" :span="3"/>
+          <basic-input v-model="store.activeClient.phone" :span="3"/>
         </div>
-        <div class="client_editor_invoices">
-        
+        <div class="ce_invoices">
+          <div class="ce_invoices_header">
+            <span>Invoices</span><span class="ce_invoices_add">+</span>
+          </div>
         </div>
       
       </div>
@@ -47,14 +50,14 @@ const msg = 'Electron + Vue3 template';
 
 <script lang="ts">
   import basicInput from "./subcomponents/basic-input.vue";
-  import { store } from './../store.js'
+  import store from '../store'
 
   export default {
     expose:['deleteSelected','saveFile'],
     data() {
       return {
-        activeRow:null,
-        selectedRow:null,
+        activeClient:null,
+        selectedClient:null,
         store
       }
     },
@@ -66,13 +69,15 @@ const msg = 'Electron + Vue3 template';
           window.electron.ipcRenderer.send('saveClients', JSON.stringify(this.store.clients));
       },
       deleteSelected(){
-        if(!this.selectedRow) return;
-        this.store.clients.splice(this.selectedRow,1);
+        if(!this.selectedClient) return;
+        this.store.clients.splice(this.store.clients.indexOf(this.selectedClient),1);
+        this.selectedClient = null;
+        this.activeClient = null;
       },
-      setActiveRow(ind){
-        console.log(ind)
-        this.activeRow = ind;
-        this.store.activeClient = this.store.clients[ind];
+      setActiveClient(client){
+        this.activeClient = client;
+        this.selectedClient = client;
+        this.store.activeClient = this.activeClient;
       }
     }
   }
@@ -82,6 +87,7 @@ const msg = 'Electron + Vue3 template';
   table{
     width: 100%;
     position: relative;
+    margin-top: 2em;
   }
 
   .client_editor,
@@ -102,7 +108,6 @@ const msg = 'Electron + Vue3 template';
   }
 
   .client_editor .background{
-    background-color: rgba(0, 0, 0, 0.2);
     opacity: 0;
     transition: opacity .3s ease;
   }
@@ -110,26 +115,45 @@ const msg = 'Electron + Vue3 template';
   .client_editor.show .background{
     opacity:1;
   }
-  .client_editor_inner{
+  .ce_inner{
     position: absolute;
     width:50%;
     right:0;
     top:0;
     bottom:0;
+
     background-color: white;
+    border-left:1px solid black;
+
     transition: transform .3s ease;
     transform: translate(100%);
     padding: 1em;
-    font-size:2em;
+    padding-top: 2em;
+    font-size:var(--fs0);
     box-sizing:border-box;
   }
 
-  .client_editor.show .client_editor_inner{
+  .client_editor.show .ce_inner{
     transform:translate(0%);
   }
 
-  .client_editor_props{
+  .ce_props{
     display: grid;
+    grid-template-columns: repeat(6,1fr);
+    grid-template-rows: auto;
+  }
+
+  .ce_props > div{
+    grid-column: span var(--span);
+  }
+
+  .ce_invoices{
+    margin-top:1em;
+  }
+
+  .ce_invoices_add{
+    float: right;
+    cursor: pointer
   }
 
   td,th{
@@ -137,6 +161,11 @@ const msg = 'Electron + Vue3 template';
     cursor: pointer;
     padding: .5em;
     font-weight:normal;
+  }
+
+  th:first-of-type,td:first-of-type{
+    width:1em;
+    font-size: var(--fs2);
   }
 
 
@@ -154,6 +183,7 @@ const msg = 'Electron + Vue3 template';
 
   th{
     text-align: left;
+    font-size: var(--fs2);
   }
 
   input{

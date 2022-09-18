@@ -19,4 +19,11 @@
         display: inline-block;
         cursor: pointer;
     }
+
+    header{
+        user-select: none;
+        font-size: var(--fs2);
+        border-bottom: 1px solid rgb(60, 60, 60);
+        grid-area: header;
+    }
 </style>
