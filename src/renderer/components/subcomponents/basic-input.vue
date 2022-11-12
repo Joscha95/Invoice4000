@@ -1,24 +1,29 @@
 <template>
-
-    <div @dblclick="edit=true" @blur="edit=false" @focusout="edit=false" @input="updateValue" :contenteditable="edit" :style="`--span:${span || '6'}`" >{{ modelValue }}</div>
-  
+    <div :style="`--span:${span || '6'}`" @input="updateValue"  :contenteditable="edit">{{ modelValue }}</div>
 </template>
 
 <script lang="ts">
 export default {
-    data() {
-        return {
-            edit:false
-        }
-    },
     props:{
         modelValue: '',
-        span: ''
+        span: '',
+        type:'',
+        edit:false
     },
     methods: {
         updateValue(e){
-            this.$emit('update:modelValue', e.target.innerText);
-            this.$emit('changed', e.target.innerText);
+            let val = e.target.innerText;
+            switch (this.type) {
+                case 'number':
+                    val = parseFloat(val);
+                    break;
+            
+                default:
+                    break;
+            }
+
+            this.$emit('update:modelValue', val);
+            this.$emit('changed', val);
         }
     },
 }
@@ -31,10 +36,11 @@ export default {
         overflow: hidden;
     }
     div[contenteditable="true"]{
-        background-color: var(--gray);
+        background-color: white;
         appearance: none;
         border:0;
         outline: 0;
+        margin: 2px;
         white-space: normal;
     }
 

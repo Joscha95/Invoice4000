@@ -2,8 +2,8 @@ import Client from './Client'
 import dayjs from 'dayjs'
 
 class Position{
-    text='';
-    sum=0;
+    text:string = '';
+    sum:number = 0;
 
     constructor(){
     }
@@ -30,6 +30,23 @@ class Invoice{
 
     addPosition(){
         this.positions.push(new Position())
+    }
+
+    save(){
+        window.electron.ipcRenderer.send('invoice:save', {number:this.number, json:this.serialize});
+    }
+
+    export(){
+
+    }
+
+    get serialize(){
+        return JSON.stringify({
+            positions: this.positions,
+            number : this.number,
+            client: this.client.id,
+            date: this.date
+        })
     }
 }
 

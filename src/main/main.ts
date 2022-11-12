@@ -1,5 +1,6 @@
 import {app, BrowserWindow, ipcMain, session, globalShortcut} from 'electron';
 import {join} from 'path';
+import dayjs from 'dayjs';
 const fs = require('fs');
 
 function createWindow () {
@@ -28,6 +29,9 @@ function createWindow () {
 
 app.whenReady().then(() => {
   ipcMain.handle('clients:get', handleGetClients);
+  ipcMain.handle('invoices:get', handleGetInvoices);
+  ipcMain.handle('invoices:getNextInvoiceNumber', handleGetNextInvoiceNumber);
+  
 
   createWindow();
 
@@ -57,10 +61,20 @@ ipcMain.on('message', (event, message) => {
   console.log(message);
 })
 
-ipcMain.on('saveClients',(event, data)=>{
+ipcMain.on('clients:save',(event, data)=>{
   try {
     fs.writeFileSync('./appdata/clients.json', data, 'utf-8');
-    console.log('saved');
+    console.log('saved clients');
+  } catch(e) {
+    console.log(e)
+  }
+});
+
+ipcMain.on('invoice:save',(event, invoice)=>{
+  try {
+    console.log(true);
+    fs.writeFileSync(`./appdata/invoices/R_${invoice.number}.json`, invoice.json, 'utf-8');
+    console.log(`saved invoice ${invoice.number}`);
   } catch(e) {
     console.log(e)
   }
@@ -70,6 +84,45 @@ async function handleGetClients() {
   try {
     const data = await fs.readFileSync('./appdata/clients.json', 'utf8');
     return data;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function handleGetNextInvoiceNumber(){
+  try {
+    let data = await fs.readFileSync('./appdata/invoice_number.txt', 'utf8');
+    
+    let num = data.substring(2);
+    num = parseInt(num);
+    num++;
+
+    const oldY = data.substring(0,2);
+    const y = dayjs().format('YY');
+    if(y != oldY) num = 0;
+    data = y+('00'+num).slice(-3);
+
+    fs.writeFileSync('./appdata/invoice_number.txt', data ,'utf8');
+    return data;
+
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function handleGetInvoices() {
+  try {
+    const invs = [];
+    fs.readdir('./appdata/invoices', (err, files) => {
+      if (err) {
+        console.error("Could not list the directory.", err);
+      }
+    
+      files.forEach( (f) => {
+        fs.readFileSync(f);
+      });
+    });
+    return invs;
   } catch (error) {
     console.log(error);
   }
