@@ -1,3 +1,5 @@
+import {makeid} from './Helpers'
+
 class Client{
     name = 'name';
     short = 'handle';
@@ -25,7 +27,7 @@ class Client{
         this.mail = obj.mail;
         this.phone = obj.phone;
         this.contact = obj.contact;
-        this.id = obj.id || `c_${Date.now()}`;
+        this.id = obj.id || `c_${makeid(5)}${obj.short}`;
     }
 }
 

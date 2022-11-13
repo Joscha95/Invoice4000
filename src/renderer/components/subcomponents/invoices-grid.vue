@@ -1,11 +1,20 @@
 <template>
-<invoices-grid :invoices="store.invoices"></invoices-grid>
+<div class="invoices">
+    <div :class="['invoice_prev', store.edit && store.activeInvoice.number != invoice.number ? 'inactive' : '']" 
+        @click="store.setActiveInvoice(invoice)" 
+        v-for="invoice in invoices" 
+        :key="invoice.number"
+        :style="`--bg-col:${invoice.color};`">
+        <div> <span class="invoice_number">{{ invoice.number }}</span> <br>({{ invoice.client.short }}) </div> 
+        <div> {{ invoice.sum.toLocaleString('de-DE') }}E </div>
+    </div>
+    <div @click="store.newInvoice()" class="invoice_prev invoice_new chancery" style="--bg-col:white;"> <span>new</span> </div>
+</div>
     
 </template>
 
 <script>
-    import store from '../store'
-    import invoicesGrid from './subcomponents/invoices-grid.vue' 
+    import store from '../../store'
 
     export default {
         data() {
@@ -13,14 +22,16 @@
                 store
             }
         },
-        components: { invoicesGrid },
+        props:{
+            invoices:Array
+        }
     }
 </script>
 
 <style scoped>
     .invoices{
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(4, 25%);
         grid-template-rows: auto;
         grid-gap: 10px;
     }
@@ -30,7 +41,7 @@
         aspect-ratio: 0.80;
         cursor: pointer;
         position: relative;
-        
+        overflow: hidden;
     }
 
     .invoice_number{

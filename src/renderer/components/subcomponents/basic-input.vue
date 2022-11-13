@@ -1,5 +1,9 @@
 <template>
-    <div :style="`--span:${span || '6'}`" @input="updateValue"  :contenteditable="edit">{{ modelValue }}</div>
+    <div :style="`--span:${span || '6'}`">
+        <small v-if="label">{{label}}</small>
+        <div @input="updateValue"  :contenteditable="edit"> {{ modelValue }}</div>
+    </div>
+    
 </template>
 
 <script lang="ts">
@@ -7,8 +11,9 @@ export default {
     props:{
         modelValue: '',
         span: '',
-        type:'',
-        edit:false
+        type: '',
+        edit: false,
+        label: ''
     },
     methods: {
         updateValue(e){
@@ -40,8 +45,9 @@ export default {
         appearance: none;
         border:0;
         outline: 0;
-        margin: 2px;
         white-space: normal;
+        padding:3px;
+        box-sizing:border-box;
     }
 
 </style>

@@ -14,15 +14,18 @@ import store from './store'
 <template>
   <div id="window_left" class="window_half">
     <div class="header"> 
-      <span @click="store.toggleMode()" :class="store.mode == 'clients' ? 'round' : 'square'"></span>
+      <span @click="store.toggleMode()" :class="[store.mode == 'clients' ? 'round' : 'square', store.edit ? 'inactive' : '']"></span>
     </div>
-    <component :is="store.mode == 'clients' ? Clients : Invoices"></component>
+    <component class="window_inner" :is="store.mode == 'clients' ? Clients : Invoices"></component>
+    <div class="footer">
+    ⚙️
+    </div>
   </div>
   <div id="window_right" class="window_half">
     <div class="header"> 
       <span @click="store.toggleEdit()" v-if="store.activeClient || store.activeInvoice"> 🔨 </span>
     </div>
-   <component :is="store.mode == 'clients' ? VClient : VInvoice"></component>
+   <component class="window_inner" :is="store.mode == 'clients' ? VClient : VInvoice"></component>
   </div>
 </template>
 
@@ -58,7 +61,12 @@ export default {
   mounted(){
     window.electron.getClients().then(res => JSON.parse(res)).then(res => {
       store.loadClients(res);
+      window.electron.getInvoices().then(res => {
+        console.log(res);
+        store.loadInvoices(res);
+      });
     });
+    
 
     window.onkeydown = (event)=>{
       if((event.key == 's' && (event.ctrlKey||event.metaKey)|| (event.which == 19))){
@@ -78,6 +86,16 @@ export default {
 </script>
 
 <style>
+  @font-face {
+    font-family: surt;
+    src: url('./public/fonts/AT Surt Regular.otf');
+  }
+
+  @font-face {
+    font-family: chancery;
+    src: url('./public/fonts/Apple Chancery.ttf');
+  }
+
   :root{
     --lightgray: rgb(245, 245, 245) ;
     --gray:rgb(200,200,200);
@@ -86,28 +104,39 @@ export default {
     --anthrazite: rgb(40, 40, 40);
     --text-darkbg:rgb(250, 250, 250);
 
-    --fs0: 2rem;
+    --fs0: 1.6rem;
     --fs1: calc(var(--fs0)*.5);
-    --fs2: calc(var(--fs0)*.45);
+    --fs2: calc(var(--fs0)*.4);
 
     --site-padding: 1em;
   }
 
   html,body,#app{
     height:100%;
+    font-family: surt;
+  }
+
+  small{
+    font-size: var(--fs2);
   }
 
   #app{
     display: flex;
   }
 
+  .chancery{
+    font-family: chancery;
+    font-size: calc(var(--fs1)*1.4);
+  }
+
   .window_half{
     flex:1;
+    position: relative;
     padding: var(--site-padding);
   }
 
   #window_left{
-    border-right: 2px solid var(--anthrazite);
+    border-right: 1px solid var(--anthrazite);
   }
 
   body{
@@ -120,6 +149,19 @@ export default {
 
   .header{
     height:2em;
+    margin-bottom: 5em;
+  }
+
+  .footer{
+    position: absolute;
+    bottom:0;
+    left:0;
+    padding:1em;
+    cursor:pointer;
+  }
+
+  .header, .footer{
+    font-size:var(--fs0);
   }
 
   #window_right .header{
@@ -132,13 +174,23 @@ export default {
 
   #window_left .header span{
     display: inline-block;
-    width:2em;
-    height:2em;
+    width:1.5em;
+    height:1.5em;
     background-color: var(--anthrazite);
     cursor: pointer;
   }
 
   #window_left .header span.round{
     border-radius:50%;
+  }
+
+  .window_inner{
+    padding: 2em;
+    box-sizing: border-box;
+  }
+
+  .inactive{
+    opacity: .1;
+    pointer-events: none;
   }
 </style>

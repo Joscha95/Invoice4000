@@ -2,10 +2,12 @@ import Client from './Client'
 import dayjs from 'dayjs'
 
 class Position{
-    text:string = '';
-    sum:number = 0;
+    text:string;
+    sum:number;
 
-    constructor(){
+    constructor(text:string = '', sum:number = 0){
+        this.sum=sum;
+        this.text=text;
     }
 }
 
@@ -16,6 +18,7 @@ class Invoice{
     
     number: string;
     date: string;
+    color:string;
 
     public get sum(){
         return this.positions.reduce((p,c) => p+c.sum, 0);
@@ -25,7 +28,8 @@ class Invoice{
         this.number = num;
         this.client = client;
         this.positions = [];
-        this.date = dayjs().format('DD.MM.YYYY')
+        this.color = `hsl(${Math.random()*360}deg 100% 50%)`;
+        this.date = dayjs().format('DD.MM.YYYY');
     }
 
     addPosition(){
@@ -40,12 +44,19 @@ class Invoice{
 
     }
 
+    load(obj:any){
+        this.date = obj.date;
+        this.color = obj.color || this.color;
+        obj.positions.forEach( (p:any) => this.positions.push(new Position(p.text, p.sum)))
+    }
+
     get serialize(){
         return JSON.stringify({
             positions: this.positions,
             number : this.number,
             client: this.client.id,
-            date: this.date
+            date: this.date,
+            color:this.color
         })
     }
 }

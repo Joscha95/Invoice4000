@@ -2,13 +2,12 @@
 </script>
 
 <template>
-  <table>
+  <table class="window_inner">
     <tbody>
       
       <tr v-for="(client,i) in store.clients" :key="i"
-        :class="{selected : selectedClient==client}"
-        @dblclick="setActiveClient(client)"
-        @click="selectedClient = client;">
+        :class="{selected : store.activeClient==client}"
+        @click="store.activeClient = client">
         <td> {{ client.number }} </td>
         <td> {{ client.name }} </td>
       </tr>
@@ -26,8 +25,6 @@
     expose:['deleteSelected','saveFile'],
     data() {
       return {
-        activeClient:null,
-        selectedClient:null,
         store
       }
     },
@@ -40,11 +37,6 @@
         this.store.clients.splice(this.store.clients.indexOf(this.selectedClient),1);
         this.selectedClient = null;
         this.activeClient = null;
-      },
-      setActiveClient(client){
-        this.activeClient = client;
-        this.selectedClient = client;
-        this.store.activeClient = this.activeClient;
       }
     }
   }
@@ -54,7 +46,6 @@
   table{
     width: 100%;
     position: relative;
-    margin-top: 2em;
   }
 
   td{

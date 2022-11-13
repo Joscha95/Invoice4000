@@ -72,7 +72,6 @@ ipcMain.on('clients:save',(event, data)=>{
 
 ipcMain.on('invoice:save',(event, invoice)=>{
   try {
-    console.log(true);
     fs.writeFileSync(`./appdata/invoices/R_${invoice.number}.json`, invoice.json, 'utf-8');
     console.log(`saved invoice ${invoice.number}`);
   } catch(e) {
@@ -112,17 +111,19 @@ async function handleGetNextInvoiceNumber(){
 
 async function handleGetInvoices() {
   try {
-    const invs = [];
-    fs.readdir('./appdata/invoices', (err, files) => {
-      if (err) {
-        console.error("Could not list the directory.", err);
-      }
+    const invs:any = [];
+
+    const files = await fs.promises.readdir('./appdata/invoices');
     
-      files.forEach( (f) => {
-        fs.readFileSync(f);
-      });
+    files.forEach( (f:string) => {
+      if(f.split('.').pop()!='json') return;
+      let r = fs.readFileSync('./appdata/invoices/'+f,'utf8');
+      r = JSON.parse(r);
+      invs.push(r);
     });
+
     return invs;
+    
   } catch (error) {
     console.log(error);
   }
