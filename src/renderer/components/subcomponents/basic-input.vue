@@ -18,9 +18,11 @@ export default {
     methods: {
         updateValue(e){
             let val = e.target.innerText;
+            
             switch (this.type) {
                 case 'number':
-                    val = parseFloat(val);
+                    val = parseFloat(val) || 0;
+                    
                     break;
             
                 default:

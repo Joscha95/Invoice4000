@@ -9,8 +9,8 @@ import Invoice from './classes/Invoice'
 class Storage {
     protected clients: Client[] = []
     protected invoices: Invoice[] = []
-    activeClient: Client
-    activeInvoice: Invoice
+    activeClient?: Client
+    activeInvoice?: Invoice
     mode: string
     edit: boolean
 

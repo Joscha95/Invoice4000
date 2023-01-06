@@ -1,6 +1,7 @@
 import {app, BrowserWindow, ipcMain, session, globalShortcut} from 'electron';
 import {join} from 'path';
 import dayjs from 'dayjs';
+import PDFExporter from './classes/PDFExporter';
 const fs = require('fs');
 
 function createWindow () {
@@ -74,6 +75,16 @@ ipcMain.on('invoice:save',(event, invoice)=>{
   try {
     fs.writeFileSync(`./appdata/invoices/R_${invoice.number}.json`, invoice.json, 'utf-8');
     console.log(`saved invoice ${invoice.number}`);
+  } catch(e) {
+    console.log(e)
+  }
+});
+
+ipcMain.on('invoice:export',(event, invoice)=>{
+  try {
+    const exp = new PDFExporter(invoice);
+    exp.export(`./appdata/invoices/R_${invoice.number}.pdf`);
+    console.log(`exported invoice ${invoice.number}`);
   } catch(e) {
     console.log(e)
   }

@@ -88,12 +88,12 @@ export default {
 <style>
   @font-face {
     font-family: surt;
-    src: url('./public/fonts/AT Surt Regular.otf');
+    src: url('./fonts/AT Surt Regular.otf');
   }
 
   @font-face {
     font-family: chancery;
-    src: url('./public/fonts/Apple Chancery.ttf');
+    src: url('./fonts/Apple Chancery.ttf');
   }
 
   :root{

@@ -38,10 +38,11 @@ class Invoice{
 
     save(){
         window.electron.ipcRenderer.send('invoice:save', {number:this.number, json:this.serialize});
+        this.export();
     }
 
     export(){
-
+        window.electron.ipcRenderer.send('invoice:export', {number:this.number, json:this.serialize});
     }
 
     load(obj:any){
