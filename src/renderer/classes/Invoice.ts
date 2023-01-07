@@ -57,7 +57,9 @@ class Invoice{
             number : this.number,
             client: this.client.id,
             date: this.date,
-            color:this.color
+            color:this.color,
+            client_number: this.client.number,
+            client_adress: this.client.name + '<br/>' + this.client.street + '<br/>' + this.client.zip + ' ' + this.client.city
         })
     }
 }

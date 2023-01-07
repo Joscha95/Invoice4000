@@ -149,7 +149,6 @@ export default {
 
   .header{
     height:2em;
-    margin-bottom: 5em;
   }
 
   .footer{
@@ -174,8 +173,8 @@ export default {
 
   #window_left .header span{
     display: inline-block;
-    width:1.5em;
-    height:1.5em;
+    width:1em;
+    height:1em;
     background-color: var(--anthrazite);
     cursor: pointer;
   }
