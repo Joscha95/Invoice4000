@@ -1,8 +1,11 @@
-import {app, BrowserWindow, ipcMain, session, globalShortcut} from 'electron';
+import {app, BrowserWindow, dialog, ipcMain, session, globalShortcut} from 'electron';
 import {join} from 'path';
 import dayjs from 'dayjs';
 import PDFExporter from './classes/PDFExporter';
+import { file } from 'pdfkit';
 const fs = require('fs');
+const path = require('path');
+
 
 function createWindow () {
   const mainWindow = new BrowserWindow({
@@ -31,6 +34,9 @@ function createWindow () {
 app.whenReady().then(() => {
   ipcMain.handle('clients:get', handleGetClients);
   ipcMain.handle('invoices:get', handleGetInvoices);
+  ipcMain.handle('layouts:get', handleGetLayouts);
+  ipcMain.handle('fonts:get', handleGetFonts);
+  ipcMain.handle('fonts:upload', handleUploadFonts);
   ipcMain.handle('invoices:getNextInvoiceNumber', handleGetNextInvoiceNumber);
   
 
@@ -94,6 +100,70 @@ async function handleGetClients() {
   try {
     const data = await fs.readFileSync('./appdata/clients.json', 'utf8');
     return data;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function handleGetFonts() {
+  try {
+    const fts:string[] = [];
+
+    const files = await fs.promises.readdir('./appdata/fonts');
+    
+    files.forEach( (f:string) => {
+      if(f.split('.').pop()!='ttf' && f.split('.').pop() != 'otf') return;
+      console.log(f);
+      
+      fts.push(f);
+    });
+    return JSON.stringify(fts);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function handleUploadFonts() {
+  try {
+    dialog.showOpenDialog({
+      properties: ['openFile', 'multiSelections'],
+      filters: [
+        { name: "Fonts", extensions: ["ttf", "otf"] },
+      ] 
+    }).then(response => {
+      if (!response.canceled) {
+        // handle fully qualified file name
+        console.log(response.filePaths[0]);
+        response.filePaths.forEach(file => {
+          const name = path.basename(file);
+          fs.copyFile(file, './appdata/fonts/'+name, (err) => {
+            if (err) throw err;
+            console.log('copied: ' + name);
+          });
+        });
+      } else {
+        console.log("no file selected");
+      }
+    })
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function handleGetLayouts() {
+  try {
+    const files = fs.readdirSync('./appdata/layouts', { withFileTypes: true })
+    .filter((item) => item.isDirectory());
+    const data:any[] = [];
+    
+    files.forEach( (f) => {
+      if(!f.isDirectory()) return;
+      let r = fs.readFileSync('./appdata/layouts/'+f.name+'/layout.json','utf8');
+      r = JSON.parse(r);
+      data.push(r);
+    });
+
+    return JSON.stringify(data);
   } catch (error) {
     console.log(error);
   }

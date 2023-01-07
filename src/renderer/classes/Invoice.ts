@@ -20,8 +20,12 @@ class Invoice{
     date: string;
     color:string;
 
-    public get sum(){
+    public get sum(): number{
         return this.positions.reduce((p,c) => p+c.sum, 0);
+    }
+
+    public get adress():string {
+        return this.client.name + '<br/>' + this.client.street + '<br/>' + this.client.zip + ' ' + this.client.city
     }
 
     constructor(num:string, client:Client){
@@ -55,11 +59,12 @@ class Invoice{
         return JSON.stringify({
             positions: this.positions,
             number : this.number,
+            sum: this.sum,
             client: this.client.id,
             date: this.date,
             color:this.color,
             client_number: this.client.number,
-            client_adress: this.client.name + '<br/>' + this.client.street + '<br/>' + this.client.zip + ' ' + this.client.city
+            client_adress: this.adress
         })
     }
 }

@@ -2,16 +2,19 @@
 import { reactive } from 'vue'
 import Client from './classes/Client'
 import Invoice from './classes/Invoice'
+import Layout from './classes/Layout'
 
 
-
+type Mode = 'clients' | 'invoices';
 
 class Storage {
     protected clients: Client[] = []
     protected invoices: Invoice[] = []
+    protected layouts: Layout[] = []
+    protected fonts: string[] = []
     activeClient?: Client
     activeInvoice?: Invoice
-    mode: string
+    mode: Mode
     edit: boolean
 
     constructor(){
@@ -38,6 +41,23 @@ class Storage {
             ni.load(_i);
             this.invoices.push(ni);
         })
+    }
+
+    loadLayouts(_layouts:any[]){
+        _layouts.forEach( (_l) => {
+            const nl = new Layout(_l);
+            this.layouts.push(nl);
+        })
+    }
+
+    setFonts(fts:string[]){
+        this.fonts = fts;
+    }
+
+    refreshFonts(){
+        window.electron.getFonts().then((res:string) => JSON.parse(res)).then((res:any) => {
+            this.setFonts(res);
+          })
     }
 
     newInvoice(){

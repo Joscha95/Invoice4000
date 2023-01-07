@@ -4,9 +4,11 @@ import Header from './components/Header.vue'
 import Invoices from './components/Invoices.vue'
 import VClient from './components/VClient.vue'
 import VInvoice from './components/VInvoice.vue'
+import Settings from './components/Settings.vue'
 
 import Client from './classes/Client'
 import Invoice from './classes/Invoice'
+
 
 import store from './store'
 </script>
@@ -18,8 +20,9 @@ import store from './store'
     </div>
     <component class="window_inner" :is="store.mode == 'clients' ? Clients : Invoices"></component>
     <div class="footer">
-    ⚙️
+      <span @click="settings=true">⚙️</span>
     </div>
+    <Settings v-if="settings"/>
   </div>
   <div id="window_right" class="window_half">
     <div class="header"> 
@@ -35,7 +38,8 @@ export default {
   data() {
     return {
       store,
-      mode:'clients'
+      mode:'clients',
+      settings:false
     }
   },
   methods:{
@@ -66,6 +70,18 @@ export default {
         store.loadInvoices(res);
       });
     });
+
+    window.electron.getLayouts().then(res => JSON.parse(res)).then(res => {
+      store.loadLayouts(res);
+
+    })
+
+    window.electron.getFonts().then(res => JSON.parse(res)).then(res => {
+      console.log(res);
+      
+      store.setFonts(res);
+
+    })
     
 
     window.onkeydown = (event)=>{
@@ -121,7 +137,8 @@ export default {
   }
 
   #app{
-    display: flex;
+    display: grid;
+    grid-template-columns: 50% 50%;
   }
 
   .chancery{
@@ -149,6 +166,23 @@ export default {
 
   .header{
     height:2em;
+  }
+
+  .center{
+    position: absolute;
+    transform: translate(-50%, -50%);
+    top:50%;
+    left:50%;
+  }
+
+  .button{
+    cursor:pointer;
+    border: 1px solid rgb(102, 102, 102);
+    border-radius: 5px;
+    display: inline-block;
+    padding: .3em .3em .1em .3em;
+    box-sizing: border-box;
+    user-select: none;
   }
 
   .footer{

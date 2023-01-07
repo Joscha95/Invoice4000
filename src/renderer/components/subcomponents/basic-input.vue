@@ -39,7 +39,6 @@ export default {
 
 <style>
     div[contenteditable="false"]{
-        white-space: nowrap;
         overflow: hidden;
     }
     div[contenteditable="true"]{
