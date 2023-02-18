@@ -31,6 +31,22 @@ class Client{
         this.contact = obj.contact;
         this.id = obj.id || `c_${makeid(5)}${obj.short}`;
     }
+
+    serialized(){
+      return{
+        name : this.name,
+        short : this.short,
+        number : this.number,
+        street : this.street,
+        city : this.city,
+        zip : this.zip,
+        mail : this.mail,
+        phone : this.phone,
+        contact : this.contact,
+        id: this.id
+      }
+    }
+
 }
 
 export default Client

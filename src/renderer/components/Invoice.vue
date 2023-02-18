@@ -1,12 +1,18 @@
 <template>
-    <div class="invoice_editor">
-        <div class="ie_form" v-if="store.activeInvoice">
+    <div class="invoice_editor" v-if="store.activeInvoice">
+        <div class="ie_form">
+          <button-wrapper>
+            <div class="edit button red" v-if="edit" @click="store.deleteActiveInvoice()">delete</div> 
+            <div class="edit button black" @click="edit=!edit; if(!edit) store.activeInvoice.save()">{{edit ? "save" : "edit"}}</div>
+            <div class="edit button black" v-if="!edit" @click="store.activeInvoice = null;edit=false;">done</div> 
+          </button-wrapper>
+          
             <div class="ie_adress">
-                <select v-if="store.edit" v-model="clientId" @change="changeClient">
+                <select v-if="edit" v-model="clientId" @change="changeClient">
                     <option v-for="client in store.clients" :key="client.id" :value="client.id">{{ client.name }}</option>
                 </select>
                 <div>
-                    <span v-if="!store.edit"> {{ store.activeInvoice.client.name }} <br> </span>
+                    <span v-if="!edit"> {{ store.activeInvoice.client.name }} <br> </span>
                     {{ store.activeInvoice.client.street }} <br>
                     {{ store.activeInvoice.client.zip }} {{ store.activeInvoice.client.city }} <br>
                 </div>
@@ -29,13 +35,16 @@
                 <tbody>
                     <tr v-for="(position, i) in store.activeInvoice.positions" :key="i">
                         <td>{{ ('0'+(i+1)).slice(-3) }}</td>
-                        <td><basic-input v-model="position.text" :edit="store.edit"/></td>
-                        <td v-if="store.edit"> <basic-input v-model="position.sum" :type="'number'" :edit="store.edit"/> </td>
+                        <td><basic-textarea v-model="position.text" :edit="edit"/></td>
+                        <td v-if="edit"> <basic-number-input v-model="position.sum" :edit="edit"/> </td>
                         <td v-else > {{ position.sum.toLocaleString('de-DE') }}E </td>
                     </tr>
                 </tbody>
             </table>
-            <div v-if="store.edit" class="ie_position_add" @click="store.activeInvoice.addPosition()">+</div>
+            <div v-if="edit" class="ie_position_add_subtract">
+              <span @click="store.activeInvoice.addPosition()" class="button grey">+</span>
+              <span @click="store.activeInvoice.removePosition()" class="button grey">-</span>
+              </div>
             <div class="ie_sum">Gesamt: {{ store.activeInvoice.sum.toLocaleString('de-DE') }}E</div>
         </div>
     </div>
@@ -44,17 +53,24 @@
 <script>
 import Invoice from '../classes/Invoice';
 import store from '../store';
+import buttonWrapper from "./subcomponents/button-wrapper.vue";
 import basicInput from "./subcomponents/basic-input.vue";
+import basicTextarea from "./subcomponents/basic-textarea.vue";
+import basicNumberInput from "./subcomponents/basic-number-input.vue";
 
 export default {
     data() {
         return {
             store,
-            clientId:''
+            clientId:'',
+            edit:false
         }
     },
     components:{
-      basicInput
+      basicInput,
+      basicTextarea,
+      basicNumberInput,
+      buttonWrapper
     },
     watch:{
         'store.activeInvoice'(newInvoice){
@@ -72,55 +88,89 @@ export default {
 
 <style scoped>
 
-    h1{
-        margin-top: 2em;
-    }
-    .ie_body_header{
-        display:flex;
-        margin: 1em 0;
-    }
+.invoice_editor{
+  position: fixed;
+  top:0;
+  left:0;
+  bottom:0;
+  right:0;
+  z-index: 2000;
+  background-color: rgba(255,255,255,.76);
+  backdrop-filter: blur(15px);
+}
 
-    .ie_body_header > div{
-        flex:1;
-    }
+.ie_form{
+  background-color: white;
+  border:var(--border);
+  border-radius: var(--border-radius-small);
+  position: absolute;
+  bottom: 10%;
+  top:10%;
+  aspect-ratio: 9/13;
+  padding: var(--site-padding);
+  padding-top: 4em;
+  box-sizing: border-box;
+  left:50%;
+  transform: translateX(-50%);
+}
 
-    .ie_body_header > div:last-of-type{
-        text-align:right;
-    }
+h1{
+  margin-top: 2em;
+}
+.ie_body_header{
+  display:flex;
+  margin: 1em 0;
+}
 
-    .ie_body_header > div:nth-of-type(2){
-        text-align:center;
-    }
+.ie_body_header > div{
+  flex:1;
+}
 
-    thead th{
-        border-bottom: 1px solid black;
-        box-sizing: border-box;
-    }
+.ie_body_header > div:last-of-type{
+  text-align:right;
+}
 
-    table{
-        width:100%;
-    }
+.ie_body_header > div:nth-of-type(2){
+  text-align:center;
+}
 
-    th{
-        text-align: left;
-    }
+thead th{
+  border-bottom: 1px solid black;
+  box-sizing: border-box;
+}
 
-    th:first-of-type{
-        width:3em;
-    }
+table{
+  width:100%;
+}
 
-    th:last-of-type,td:last-of-type{
-        width:4em;
-        text-align: right;
-    }
+th{
+  text-align: left;
+}
 
-    .ie_sum{
-        text-align: right;
-        margin-top: 1em;
-    }
+th:first-of-type{
+  width:3em;
+}
 
-    .ie_position_add{
-        text-align: center;
-        cursor:pointer;
-    }
+th:last-of-type,td:last-of-type{
+  width:4em;
+  text-align: right;
+}
+
+.ie_sum{
+  text-align: right;
+  margin-top: 1em;
+}
+
+.ie_position_add_subtract{
+  text-align: center;
+  margin-top: var(--site-padding);
+}
+
+.ie_position_add_subtract span{
+  width:100px;
+  display: inline-block;
+}
+.ie_position_add_subtract span+span{
+  margin-left: var(--site-padding);
+}
 </style>

@@ -3,14 +3,16 @@
 
 <template>
   <div class="client_editor">
-    <div class="edit button black" @click="edit=!edit; if(!edit) store.saveClients();">edit</div>
+    <button-wrapper>
+      <div class="edit button black" @click="edit=!edit; if(!edit) store.saveClients();">{{edit ? "save" : "edit"}}</div>
+    </button-wrapper>
     <div class="ce_props">
       <div class="number" style="--area:number">
         <basicInput v-model="client.number" :edit="edit"/>
       </div>
 
       <div class="name" style="--area:name">
-        <basicInput v-model="client.name" :edit="edit"/>
+        <basicTextarea v-model="client.name" :edit="edit"/>
       </div>
       
       <div class="adress" style="--area:adress">
@@ -29,7 +31,7 @@
       </div>
 
       <div class="contact" style="--area:contact">
-        <basicInput v-model="client.contact" :label="'contact'" :span="1" :edit="edit"/>
+        <basicTextarea v-model="client.contact" :label="'contact'" :span="1" :edit="edit"/>
       </div>
     
     </div>
@@ -40,6 +42,8 @@
 
 <script lang="ts">
   import basicInput from "./basic-input.vue";
+  import basicTextarea from "./basic-textarea.vue";
+  import ButtonWrapper from "./button-wrapper.vue";
   import store from '../../store'
   import Client from '../../classes/Client'
   import invoicesGrid from './invoices-grid.vue'
@@ -58,12 +62,11 @@
     },
     components:{
       basicInput,
-      invoicesGrid
+      invoicesGrid,
+      basicTextarea,
+      ButtonWrapper
     },
     methods: {
-      saveFile() {
-          window.electron.ipcRenderer.send('saveClients', JSON.stringify(this.store.clients));
-      },
       deleteSelected(){
         this.store.clients.splice(this.store.clients.indexOf(this.client),1);
         this.client = null;
@@ -85,7 +88,7 @@
   .ce_props{
     display: grid;
     grid-template-columns: repeat(4,1fr);
-    grid-template-rows: repeat(4,5em);
+    grid-template-rows: repeat(4,8em);
     grid-template-areas: 
     "number number name name"
     "adress adress short contact"
@@ -96,6 +99,11 @@
 
   .ce_props > div{
     grid-area: var(--area);
+    overflow: auto;
+  }
+
+  .invoices{
+    border-radius:var(--border-radius-small)
   }
 
   .client_new{
@@ -107,9 +115,8 @@
     top:0;
   }
 
-  .edit{
-    position: absolute;
-    right:var(--site-padding);
+  .name{
+    padding-right:4.5em;
   }
 
   input{

@@ -25,7 +25,6 @@ class Storage {
     }
     
     setActiveInvoice(inv:Invoice){
-        if(this.mode=='Clients') this.toggleMode();
         this.activeInvoice=inv;
     }
 
@@ -43,7 +42,7 @@ class Storage {
             ni.load(_i);
             this.invoices.push(ni);
         });
-        this.clients.forEach(c => c.invoices = this.invoices.filter( i => i.client.id == c.id))
+        this.updateInvoices();
     }
 
     setSettings(s:any){
@@ -60,6 +59,17 @@ class Storage {
           })
     }
 
+    deleteActiveInvoice(){
+      this.activeInvoice?.delete();
+      this.activeInvoice = undefined;
+      this.invoices = this.invoices.filter((i:Invoice) => !i.deleted);
+      this.updateInvoices();
+    }
+
+    updateInvoices(){
+      this.clients.forEach(c => c.invoices = this.invoices.filter( i => i.client.id == c.id))
+    }
+
     newInvoice(client:Client){
         window.electron.getNextInvoiceNumber().then((num:string) => {
             const inv = new Invoice(num, client || this.clients[0]);
@@ -68,7 +78,7 @@ class Storage {
             if(this.mode=='Clients') this.toggleMode();
             this.activeInvoice = inv;
           });
-          this.clients.forEach(c => c.invoices = this.invoices.filter( i => i.client.id == c.id))
+          this.updateInvoices();
     }
 
     getClient(id:string){
@@ -86,7 +96,7 @@ class Storage {
     }
 
     saveClients(){
-      window.electron.ipcRenderer.send('clients:save', JSON.stringify(this.clients.map(c=> c.invoices=[])));
+      window.electron.ipcRenderer.send('clients:save', JSON.stringify(this.clients.map(c=> c.serialized())));
     }
 }
 

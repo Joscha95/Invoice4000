@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Clients from './components/Clients.vue'
 import Invoices from './components/Invoices.vue'
+import Invoice from './components/Invoice.vue'
 import Settings from './components/Settings.vue'
 
 import store from './store'
@@ -13,6 +14,7 @@ import CustomSelect from './components/subcomponents/custom-select.vue'
   </header>
   <main >
     <component :is="store.mode"/>
+    <Invoice />
   </main>
 </template>
 
@@ -29,6 +31,7 @@ export default {
   },
   components:{
     Invoices,
+    Invoice,
     Settings,
     Clients,
     CustomSelect
@@ -97,6 +100,10 @@ export default {
     --site-padding: .5rem;
   }
 
+  body{
+    line-height: 1.5;
+  }
+
   html,body,#app{
     font-family: surt;
     font-size: var(--fs0);
@@ -109,6 +116,7 @@ export default {
 
   header{
     position: fixed;
+    z-index: 100;
     top:var(--site-padding);
     left:var(--site-padding);
   }
@@ -128,6 +136,25 @@ export default {
     background-color: black;
     color:white;
   }
+
+  .button.grey{
+    background-color: rgb(211, 211, 211);
+    color:white;
+  }
+
+  .button.red{
+    background-color: red;
+    color:white;
+  }
+
+  .button.grey:hover{
+    background-color: rgb(189, 189, 189);
+  }
+
+  .button.grey:active{
+    background-color: rgb(128, 128, 128);
+  }
+
 
   
 </style>

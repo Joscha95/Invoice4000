@@ -91,6 +91,15 @@ ipcMain.on('files:save',(event, data)=>{
   }
 });
 
+ipcMain.on('files:delete',(event, data)=>{
+  try {
+    fs.unlinkSync(data.path);
+    console.log(`deleted ${data.path}`);
+  } catch(e) {
+    console.log(e)
+  }
+});
+
 ipcMain.on('invoice:export',(event, invoice)=>{
   try {
     const exp = new PDFExporter(invoice);

@@ -15,6 +15,7 @@
           <VClient :client="client"/>
         </div>
       </div>
+      <div @click="newClient()" class="add button black">+</div>
 
 </template>
 
@@ -42,7 +43,7 @@
         this.activeClient = null;
       },
       newClient(){
-        this.store.clients.push(new Client(("00" + (parseInt(this.store.clients[this.store.clients.length-1].number)+1)).slice(-3)));
+        this.store.clients.push(new Client(("00" + (parseInt(this.store.clients[this.store.clients.length-1]?.number)+1)).slice(-3)));
         this.store.activeClient = this.store.clients[this.store.clients.length-1];
       }
     }
@@ -75,5 +76,9 @@
 }
 .client_head_icount{
   text-align: right;
+}
+.add.button{
+  text-align: center;
+  margin-top: var(--site-padding);
 }
 </style>

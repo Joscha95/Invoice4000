@@ -1,7 +1,8 @@
 <template>
-    <div :style="`--span:${span || '6'}`">
+    <div>
         <small v-if="label">{{label}}</small>
-        <div @input="updateValue"  :contenteditable="edit"> {{ modelValue }}</div>
+        <div v-if="!edit"> {{ modelValue }}</div>
+        <input ref="ele" v-else @input="updateValue" :value="modelValue"/>
     </div>
     
 </template>
@@ -10,26 +11,29 @@
 export default {
     props:{
         modelValue: String,
-        span: Number,
-        type: String,
         edit: Boolean,
         label: String
     },
+    watch:{
+      edit(){
+        if(!this.edit) return
+        this.$nextTick(function () {
+            console.log(this.$refs.ele);
+            this.$refs.ele.style.width = "5px";
+            this.$refs.ele.style.width = (this.$refs.ele.scrollWidth+5)+"px";
+        })
+      }
+    },
     methods: {
         updateValue(e){
-            let val = e.target.innerText;
-            
-            switch (this.type) {
-                case 'number':
-                    val = parseFloat(val) || 0;
-                    break;
-            
-                default:
-                    break;
-            }
+          const element = e.target;
+          let val = e.target.value;
 
-            this.$emit('update:modelValue', val);
-            this.$emit('changed', val);
+          element.style.width = "5px";
+          element.style.width = (element.scrollWidth+5)+"px";
+
+          this.$emit('update:modelValue', val);
+          this.$emit('changed', val);
         }
     },
 }
@@ -37,17 +41,23 @@ export default {
 </script>
 
 <style>
-    div[contenteditable="false"]{
-        overflow: hidden;
-    }
-    div[contenteditable="true"]{
-        background-color: white;
-        appearance: none;
-        border:0;
-        outline: 0;
-        white-space: normal;
-        padding:3px;
-        box-sizing:border-box;
-    }
+input{
+  display: block;
+  width:max-content;
+  box-sizing:border-box;
+  resize: none;
+  border: var(--border);
+  border-color: rgba(0,0,0,0.1) ;
+  appearance: none;
+  border-style: inset;
+  outline:none;
+  font-family: inherit;
+  text-align: inherit;
+  /* border-radius:var(--border-radius-small); */
+}
+
+input:focus{
+  border: var(--border);
+}
 
 </style>

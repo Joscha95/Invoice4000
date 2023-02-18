@@ -4,7 +4,7 @@ import dayjs from 'dayjs'
 class Position{
     text:string;
     sum:number;
-
+    
     constructor(text:string = '', sum:number = 0){
         this.sum=sum;
         this.text=text;
@@ -12,9 +12,10 @@ class Position{
 }
 
 class Invoice{
-    
     positions: Position[];
     client: Client;
+    deleted = false;
+
     
     number: string;
     date: string;
@@ -40,9 +41,22 @@ class Invoice{
         this.positions.push(new Position())
     }
 
+    removePosition(i?:number){
+      if (i) {
+        this.positions.splice(i,1);
+      }else{
+        this.positions.pop()
+      }
+    }
+
     save(){
         window.electron.ipcRenderer.send('files:save', {path:`./appdata/invoices/R_${this.number}.json`, content:this.serialize});
         this.export();
+    }
+
+    delete(){
+      window.electron.ipcRenderer.send('files:delete', {path:`./appdata/invoices/R_${this.number}.json`});
+      this.deleted = true;
     }
 
     export(){
