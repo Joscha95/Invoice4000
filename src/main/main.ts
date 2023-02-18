@@ -5,9 +5,9 @@ import PDFExporter from './classes/PDFExporter';
 import { file } from 'pdfkit';
 const fs = require('fs');
 const path = require('path');
+let rendererWindow:BrowserWindow;
 
-
-function createWindow () {
+function createWindow ():BrowserWindow {
   const mainWindow = new BrowserWindow({
     width: 1500,
     height: 1000,
@@ -29,18 +29,21 @@ function createWindow () {
   else {
     mainWindow.loadFile(join(app.getAppPath(), 'renderer', 'index.html'));
   }
+
+  return mainWindow;
 }
 
 app.whenReady().then(() => {
   ipcMain.handle('clients:get', handleGetClients);
+  ipcMain.handle('settings:get', handleGetSettings);
   ipcMain.handle('invoices:get', handleGetInvoices);
-  ipcMain.handle('layouts:get', handleGetLayouts);
+  ipcMain.handle('files:get', handleGetFile);
   ipcMain.handle('fonts:get', handleGetFonts);
   ipcMain.handle('fonts:upload', handleUploadFonts);
   ipcMain.handle('invoices:getNextInvoiceNumber', handleGetNextInvoiceNumber);
   
 
-  createWindow();
+  rendererWindow = createWindow();
 
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     callback({
@@ -55,10 +58,12 @@ app.whenReady().then(() => {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
+      rendererWindow = createWindow();
     }
   });
 });
+
+// rendererWindow.webContents.send('update-counter', 1)
 
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit()
@@ -77,10 +82,10 @@ ipcMain.on('clients:save',(event, data)=>{
   }
 });
 
-ipcMain.on('invoice:save',(event, invoice)=>{
+ipcMain.on('files:save',(event, data)=>{
   try {
-    fs.writeFileSync(`./appdata/invoices/R_${invoice.number}.json`, invoice.json, 'utf-8');
-    console.log(`saved invoice ${invoice.number}`);
+    fs.writeFileSync(data.path, data.content, 'utf-8');
+    console.log(`saved ${data.path}`);
   } catch(e) {
     console.log(e)
   }
@@ -105,6 +110,15 @@ async function handleGetClients() {
   }
 }
 
+async function handleGetSettings() {
+  try {
+    const data = await fs.readFileSync('./appdata/settings.json', 'utf8');
+    return data;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 async function handleGetFonts() {
   try {
     const fts:string[] = [];
@@ -113,7 +127,6 @@ async function handleGetFonts() {
     
     files.forEach( (f:string) => {
       if(f.split('.').pop()!='ttf' && f.split('.').pop() != 'otf') return;
-      console.log(f);
       
       fts.push(f);
     });
@@ -150,20 +163,12 @@ async function handleUploadFonts() {
   }
 }
 
-async function handleGetLayouts() {
+async function handleGetFile(event,file:string) {
   try {
-    const files = fs.readdirSync('./appdata/layouts', { withFileTypes: true })
-    .filter((item) => item.isDirectory());
-    const data:any[] = [];
+    const data = await fs.readFileSync(file, 'utf8');
+    console.log(file);
     
-    files.forEach( (f) => {
-      if(!f.isDirectory()) return;
-      let r = fs.readFileSync('./appdata/layouts/'+f.name+'/layout.json','utf8');
-      r = JSON.parse(r);
-      data.push(r);
-    });
-
-    return JSON.stringify(data);
+    return data;
   } catch (error) {
     console.log(error);
   }

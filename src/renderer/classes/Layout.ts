@@ -1,15 +1,18 @@
 class Layout{
     data;
     name: string;
+    fontMap: string[][]
 
     public get isValid(): boolean|string {
-        const req = this.data.layers.find((l:any) => l.name =='required');
+        
+        
+        const req = this.data.children.find((l:any) => l.name =='required');
         if(!req) return 'missing layer: required';
 
         let msg = '';
         const requirements = ['date','client_number','invoice_number','address','sum','price','description','position'];
         requirements.forEach((r:string) => {
-            const req_field = req.layers.find((l:any) => l.name == r);
+            const req_field = req.children.find((l:any) => l.name == r);
             if(!req_field) msg += 'missing required field: '+r+'<br/>';
         });
 
@@ -18,7 +21,7 @@ class Layout{
 
     public get fonts(): string[]{
         let fts:string[] = [];
-        const layers:any[] = [];
+        const children:any[] = [];
 
         this.getFonts(this.data, fts);
         fts = fts.filter((value, index, self) => {
@@ -30,15 +33,44 @@ class Layout{
     constructor(d:any){
         this.data = d;
         this.name = d.name;
+        this.fontMap = d.fontMap || [];        
+    }
+
+    setFontMap(key:string,value:string){
+        const f = this.fontMap.find((k:string[]) => { return k[0] == key });
+
+        if(f) {
+            f[1] = value;
+        }else{
+            this.fontMap.push([key,value]);
+        }
+    }
+
+    initFontMap(m:any){
+        this.fontMap = m;
+    }
+
+    getFontFileName(key:string){
+        
+        const f = this.fontMap.find((k:string[]) => { return k[0] == key });
+
+
+        if(f) {
+            return f[1]
+        }else{
+            return ''
+        }
     }
 
     private getFonts(l:any, fts:string[]):void{
-        if(l.layers){
-            l.layers.forEach((l:any) => {
+        
+        if(l.children){
+            l.children.forEach((l:any) => {
                 this.getFonts(l, fts);
             });
         } else{
-            if(l.type == 'text') fts.push(l.font);
+            if(l.type == "TEXT") fts.push(l.style.fontPostScriptName);
+            
         }
     }
 }

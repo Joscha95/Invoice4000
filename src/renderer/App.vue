@@ -1,35 +1,19 @@
 <script setup lang="ts">
 import Clients from './components/Clients.vue'
-import Header from './components/Header.vue'
 import Invoices from './components/Invoices.vue'
-import VClient from './components/VClient.vue'
-import VInvoice from './components/VInvoice.vue'
 import Settings from './components/Settings.vue'
 
-import Client from './classes/Client'
-import Invoice from './classes/Invoice'
-
-
 import store from './store'
+import CustomSelect from './components/subcomponents/custom-select.vue'
 </script>
 
 <template>
-  <div id="window_left" class="window_half">
-    <div class="header"> 
-      <span @click="store.toggleMode()" :class="[store.mode == 'clients' ? 'round' : 'square', store.edit ? 'inactive' : '']"></span>
-    </div>
-    <component class="window_inner" :is="store.mode == 'clients' ? Clients : Invoices"></component>
-    <div class="footer">
-      <span @click="settings=true">⚙️</span>
-    </div>
-    <Settings v-if="settings"/>
-  </div>
-  <div id="window_right" class="window_half">
-    <div class="header"> 
-      <span @click="store.toggleEdit()" v-if="store.activeClient || store.activeInvoice"> 🔨 </span>
-    </div>
-   <component class="window_inner" :is="store.mode == 'clients' ? VClient : VInvoice"></component>
-  </div>
+  <header>
+    <CustomSelect v-model="store.mode" :options="[ 'Clients',  'Invoices', 'Settings']"/>
+  </header>
+  <main >
+    <component :is="store.mode"/>
+  </main>
 </template>
 
 <script lang="ts">
@@ -39,48 +23,30 @@ export default {
     return {
       store,
       mode:'clients',
-      settings:false
+      S:false,
+      
     }
   },
-  methods:{
-    // headerClicked(e){
-    //   switch (e) {
-    //     case 'client:delete':
-    //         this.$refs.client.deleteSelected();
-    //       break;
-    //     case 'client:add':
-    //         
-    //       break;
-    //     case 'invoice:new':
-    //         this.store.addInvoice(new Invoice('0',this.store.selectedClient || this.store.clients[0]))
-    //       break;
-      
-    //     default:
-    //       break;
-    //   }
-      
-    // }
-    
+  components:{
+    Invoices,
+    Settings,
+    Clients,
+    CustomSelect
   },
   mounted(){
     window.electron.getClients().then(res => JSON.parse(res)).then(res => {
       store.loadClients(res);
       window.electron.getInvoices().then(res => {
-        console.log(res);
         store.loadInvoices(res);
       });
     });
 
-    window.electron.getLayouts().then(res => JSON.parse(res)).then(res => {
-      store.loadLayouts(res);
-
+    window.electron.getFonts().then(res => JSON.parse(res)).then(res => {
+      store.setFonts(res);
     })
 
-    window.electron.getFonts().then(res => JSON.parse(res)).then(res => {
-      console.log(res);
-      
-      store.setFonts(res);
-
+    window.electron.getSettings().then(res => JSON.parse(res)).then(res => {
+      store.setSettings(res);
     })
     
 
@@ -108,122 +74,60 @@ export default {
   }
 
   @font-face {
-    font-family: chancery;
-    src: url('./fonts/Apple Chancery.ttf');
+    font-family: receipt;
+    src: url('./fonts/fake receipt.otf');
   }
 
   :root{
-    --lightgray: rgb(245, 245, 245) ;
+    --lightgray: #FAFAFA ;
+    --middlegray: #ECECEC ;
     --gray:rgb(200,200,200);
     --lightblue:rgb(227, 227, 227) ;
     --lightgreen:rgb(213, 235, 213) ;
     --anthrazite: rgb(40, 40, 40);
     --text-darkbg:rgb(250, 250, 250);
+    --border: 1px solid black;
 
-    --fs0: 1.6rem;
-    --fs1: calc(var(--fs0)*.5);
-    --fs2: calc(var(--fs0)*.4);
+    --fs0: .9rem;
+    --fs1: calc(var(--fs0)*.9);
+    --fs2: calc(var(--fs0)*.7);
 
-    --site-padding: 1em;
+    --border-radius-small: 5px;
+
+    --site-padding: .5rem;
   }
 
   html,body,#app{
-    height:100%;
     font-family: surt;
+    font-size: var(--fs0);
+    background-color: var(--lightgray);
   }
 
   small{
     font-size: var(--fs2);
   }
 
-  #app{
-    display: grid;
-    grid-template-columns: 50% 50%;
+  header{
+    position: fixed;
+    top:var(--site-padding);
+    left:var(--site-padding);
   }
 
-  .chancery{
-    font-family: chancery;
-    font-size: calc(var(--fs1)*1.4);
-  }
-
-  .window_half{
-    flex:1;
-    position: relative;
-    padding: var(--site-padding);
-  }
-
-  #window_left{
-    border-right: 1px solid var(--anthrazite);
-  }
-
-  body{
-    font-size:var(--fs1);
-    font-family:sans-serif;
-    padding:0;
-    margin:0;
-    background-color: var(--lightgray);
-  }
-
-  .header{
-    height:2em;
-  }
-
-  .center{
-    position: absolute;
-    transform: translate(-50%, -50%);
-    top:50%;
-    left:50%;
+  main{
+    margin-top: 10em;
   }
 
   .button{
-    cursor:pointer;
-    border: 1px solid rgb(102, 102, 102);
-    border-radius: 5px;
-    display: inline-block;
-    padding: .3em .3em .1em .3em;
+    padding: .4em .8em;
     box-sizing: border-box;
-    user-select: none;
-  }
-
-  .footer{
-    position: absolute;
-    bottom:0;
-    left:0;
-    padding:1em;
-    cursor:pointer;
-  }
-
-  .header, .footer{
-    font-size:var(--fs0);
-  }
-
-  #window_right .header{
-    text-align: right;
-  }
-
-  #window_right .header span{
     cursor: pointer;
+    border-radius: var(--border-radius-small);
   }
 
-  #window_left .header span{
-    display: inline-block;
-    width:1em;
-    height:1em;
-    background-color: var(--anthrazite);
-    cursor: pointer;
+  .button.black{
+    background-color: black;
+    color:white;
   }
 
-  #window_left .header span.round{
-    border-radius:50%;
-  }
-
-  .window_inner{
-    padding: 2em;
-    box-sizing: border-box;
-  }
-
-  .inactive{
-    opacity: .1;
-    pointer-events: none;
-  }
+  
 </style>

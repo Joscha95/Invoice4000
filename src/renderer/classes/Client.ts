@@ -1,4 +1,5 @@
 import {makeid} from './Helpers'
+import Invoice from './Invoice';
 
 class Client{
     name = 'name';
@@ -11,6 +12,7 @@ class Client{
     phone = 'phone';
     contact = 'contact';
     id: string;
+    invoices: Array<Invoice> = []
 
     constructor(num:string = '000' ){
         this.number = num;

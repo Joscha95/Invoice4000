@@ -2,24 +2,27 @@
 </script>
 
 <template>
-  <table class="window_inner">
-    <tbody>
       
-      <tr v-for="(client,i) in store.clients" :key="i"
-        :class="{selected : store.activeClient==client}"
-        @click="store.activeClient = client">
-        <td> {{ client.number }} </td>
-        <td> {{ client.name }} </td>
-      </tr>
-    </tbody>
-  </table>
+      <div v-for="(client,i) in store.clients" :key="i"
+        :class="{open : client.expanded,client_row:true}"
+        >
+        <div class="client_row_head" @click="client.expanded = !client.expanded">
+          <div class="client_head_number"> {{ client.number }} </div>
+          <div class="client_head_name"> {{ client.name }} </div>
+          <div class="client_head_icount"> {{ client.invoices.length }} </div>
+        </div>
+        <div class="client_row_info">
+          <VClient :client="client"/>
+        </div>
+      </div>
 
 </template>
 
 
 <script lang="ts">
-  import basicInput from "./subcomponents/basic-input.vue";
   import store from '../store'
+  import Client from '../classes/Client'
+  import VClient from './subcomponents/client.vue'
 
   export default {
     expose:['deleteSelected','saveFile'],
@@ -29,7 +32,7 @@
       }
     },
     components:{
-      basicInput
+      VClient
     },
     methods: {
       deleteSelected(){
@@ -37,49 +40,40 @@
         this.store.clients.splice(this.store.clients.indexOf(this.selectedClient),1);
         this.selectedClient = null;
         this.activeClient = null;
+      },
+      newClient(){
+        this.store.clients.push(new Client(("00" + (parseInt(this.store.clients[this.store.clients.length-1].number)+1)).slice(-3)));
+        this.store.activeClient = this.store.clients[this.store.clients.length-1];
       }
     }
   }
 </script>
 <style scoped>
-  
-  table{
-    width: 100%;
-    position: relative;
-  }
-
-  td{
-    position: relative;
-    cursor: pointer;
-    padding: .5em;
-    font-weight:normal;
-  }
-
-  td:first-of-type{
-    width:1em;
-    font-size: var(--fs2);
-  }
-
-
-  tr.selected{
-    background-color: var(--lightblue);
-  }
-
-  tr.active{
-    background-color: var(--gray);
-  }
-
-  td:nth-of-type(2){
-    max-width: 10%;
-  }
-
-  input{
-    appearance: none;
-    border:0;
-    display: block;
-  }
-
-  td:not(:first-of-type){
-    padding-right:1em;
-  }
+.client_row{
+  padding: .5em 0 .4em 0;
+  border-bottom: var(--border);
+  box-sizing: border-box;
+}
+.client_row_info{
+  display: none;
+}
+.client_row.open .client_row_info{
+  display: grid;
+}
+.client_row_head{
+  display: flex;
+  cursor: pointer;
+  padding: 0 var(--site-padding);
+  justify-content: space-between;
+}
+.client_head_number,
+.client_head_icount{
+  flex-basis: 8%;
+}
+.client_head_name{
+  flex: 1;
+}
+.client_head_icount{
+  text-align: right;
+}
 </style>

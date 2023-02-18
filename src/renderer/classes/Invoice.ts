@@ -41,7 +41,7 @@ class Invoice{
     }
 
     save(){
-        window.electron.ipcRenderer.send('invoice:save', {number:this.number, json:this.serialize});
+        window.electron.ipcRenderer.send('files:save', {path:`./appdata/invoices/R_${this.number}.json`, content:this.serialize});
         this.export();
     }
 

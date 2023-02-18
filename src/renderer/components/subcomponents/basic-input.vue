@@ -9,11 +9,11 @@
 <script lang="ts">
 export default {
     props:{
-        modelValue: '',
-        span: '',
-        type: '',
-        edit: false,
-        label: ''
+        modelValue: String,
+        span: Number,
+        type: String,
+        edit: Boolean,
+        label: String
     },
     methods: {
         updateValue(e){
@@ -22,7 +22,6 @@ export default {
             switch (this.type) {
                 case 'number':
                     val = parseFloat(val) || 0;
-                    
                     break;
             
                 default:

@@ -3,9 +3,9 @@ import { reactive } from 'vue'
 import Client from './classes/Client'
 import Invoice from './classes/Invoice'
 import Layout from './classes/Layout'
+import Settings from './classes/Settings'
 
-
-type Mode = 'clients' | 'invoices';
+type Mode = 'Clients' | 'Invoices' | 'Settings';
 
 class Storage {
     protected clients: Client[] = []
@@ -16,14 +16,16 @@ class Storage {
     activeInvoice?: Invoice
     mode: Mode
     edit: boolean
+    settings: Settings
 
     constructor(){
-        this.mode = 'clients';
+        this.mode = 'Clients';
         this.edit = false;
+        this.settings = new Settings();
     }
     
     setActiveInvoice(inv:Invoice){
-        if(this.mode=='clients') this.toggleMode();
+        if(this.mode=='Clients') this.toggleMode();
         this.activeInvoice=inv;
     }
 
@@ -40,14 +42,12 @@ class Storage {
             const ni = new Invoice(_i.number,this.getClient(_i.client));
             ni.load(_i);
             this.invoices.push(ni);
-        })
+        });
+        this.clients.forEach(c => c.invoices = this.invoices.filter( i => i.client.id == c.id))
     }
 
-    loadLayouts(_layouts:any[]){
-        _layouts.forEach( (_l) => {
-            const nl = new Layout(_l);
-            this.layouts.push(nl);
-        })
+    setSettings(s:any){
+        this.settings.load(s);
     }
 
     setFonts(fts:string[]){
@@ -60,14 +60,15 @@ class Storage {
           })
     }
 
-    newInvoice(){
+    newInvoice(client:Client){
         window.electron.getNextInvoiceNumber().then((num:string) => {
-            const inv = new Invoice(num, this.activeClient || this.clients[0]);
+            const inv = new Invoice(num, client || this.clients[0]);
             this.invoices.push(inv);
             inv.save();
-            if(this.mode=='clients') this.toggleMode();
+            if(this.mode=='Clients') this.toggleMode();
             this.activeInvoice = inv;
           });
+          this.clients.forEach(c => c.invoices = this.invoices.filter( i => i.client.id == c.id))
     }
 
     getClient(id:string){
@@ -79,20 +80,13 @@ class Storage {
     }
 
     toggleMode(){
-        this.mode = this.mode == 'clients' ? 'invoices' : 'clients';
+        this.mode = this.mode == 'Clients' ? 'Invoices' : 'Clients';
         this.activeClient = undefined;
         this.activeInvoice = undefined;
     }
 
-    toggleEdit(){
-        this.edit = !this.edit;
-        if(!this.edit){
-            if(this.mode == 'clients' && this.activeClient){
-                window.electron.ipcRenderer.send('clients:save', JSON.stringify(this.clients));
-            } else if(this.mode == 'invoices' && this.activeInvoice){
-                this.activeInvoice.save();
-            }
-        }
+    saveClients(){
+      window.electron.ipcRenderer.send('clients:save', JSON.stringify(this.clients.map(c=> c.invoices=[])));
     }
 }
 
