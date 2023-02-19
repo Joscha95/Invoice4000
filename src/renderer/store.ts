@@ -77,8 +77,8 @@ class Storage {
             inv.save();
             if(this.mode=='Clients') this.toggleMode();
             this.activeInvoice = inv;
+            this.updateInvoices();
           });
-          this.updateInvoices();
     }
 
     getClient(id:string){

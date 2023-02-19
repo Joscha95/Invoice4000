@@ -7,7 +7,7 @@
         :style="`--bg-col:${invoice.color};`">
         {{ invoice.number }}: {{ invoice.sum.toLocaleString('de-DE') }}E
     </div>
-    <div @click="store.newInvoice(client)" class="invoice_prev invoice_new" style="--bg-col:white;"> <span>+</span> </div>
+    <div v-if="!hideAdd" @click="store.newInvoice(client)" class="invoice_prev invoice_new" style="--bg-col:white;"> <span>+</span> </div>
 </div>
     
 </template>
@@ -24,7 +24,8 @@ import store from '../../store'
         },
         props:{
             invoices:Array,
-            client: Client
+            client: Client,
+            hideAdd: Boolean
         }
     }
 

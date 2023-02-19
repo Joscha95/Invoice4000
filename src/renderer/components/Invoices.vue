@@ -1,5 +1,10 @@
 <template>
-<invoices-grid :invoices="store.invoices"></invoices-grid>
+<div @click="store.newInvoice(client)" class="button black" style="--bg-col:white;"> <span>+</span> </div>
+<section v-for="(group, key) in invoicesGrouped" :key="key">
+  <div class="sum">{{key}}: {{group.sum.toLocaleString('de-DE')}}E</div>
+  <invoices-grid :invoices="group.invoices" :hideAdd="true"/>
+</section>
+
     
 </template>
 
@@ -10,17 +15,54 @@
     export default {
         data() {
             return {
-                store
+                store,
+                groupBy:1
             }
         },
         components: { invoicesGrid },
+        computed:{
+          invoicesGrouped(){
+            const m = {};
+            this.store.invoices.forEach(i => {
+              const k = i.date.split('.')[this.groupBy+1];
+              if(m[k]) {
+                m[k].invoices.push(i);
+                m[k].sum+=i.sum;
+              } else{
+                m[k] = {
+                  invoices:[i],
+                  sum:i.sum
+                }
+              }
+            });
+            return m;
+          }
+        }
     }
 </script>
 
 <style scoped>
-    .invoices{
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        grid-template-rows: auto;
-    }
+section{
+  margin-bottom: var(--site-padding);
+}
+.invoices{
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: auto;
+}
+.sum{
+  display: inline-block;
+  height:2.5em;
+  line-height: 2.5em;
+  padding: 0 1em;
+  box-sizing: border-box;
+  background-color: rgb(0, 255, 110);
+  border-radius: 1.5em;
+  margin: var(--site-padding) 0;
+}
+
+.button{
+  float: right;
+}
+
 </style>

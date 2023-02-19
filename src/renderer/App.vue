@@ -130,6 +130,11 @@ export default {
     box-sizing: border-box;
     cursor: pointer;
     border-radius: var(--border-radius-small);
+    display: inline-block;
+  }
+
+  .button.inactive{
+    opacity: .2;
   }
 
   .button.black{

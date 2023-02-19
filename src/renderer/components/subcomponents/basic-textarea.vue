@@ -28,8 +28,6 @@ export default {
           const element = e.target;
           let val = e.target.value;
 
-          console.log(this.modelValue);
-
           element.style.height = "5px";
           element.style.height = (element.scrollHeight)+"px";
 

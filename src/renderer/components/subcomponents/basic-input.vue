@@ -2,7 +2,7 @@
     <div>
         <small v-if="label">{{label}}</small>
         <div v-if="!edit"> {{ modelValue }}</div>
-        <input ref="ele" v-else @input="updateValue" :value="modelValue"/>
+        <input :class="{big:big}" ref="ele" v-else @input="updateValue" :value="modelValue"/>
     </div>
     
 </template>
@@ -12,13 +12,19 @@ export default {
     props:{
         modelValue: String,
         edit: Boolean,
-        label: String
+        label: String,
+        big: Boolean
+    },
+    mounted(){
+      if(!this.$refs.ele) return;
+      this.$refs.ele.style.width = "5px";
+      this.$refs.ele.style.width = (this.$refs.ele.scrollWidth+5)+"px";
     },
     watch:{
       edit(){
         if(!this.edit) return
         this.$nextTick(function () {
-            console.log(this.$refs.ele);
+            
             this.$refs.ele.style.width = "5px";
             this.$refs.ele.style.width = (this.$refs.ele.scrollWidth+5)+"px";
         })
@@ -58,6 +64,11 @@ input{
 
 input:focus{
   border: var(--border);
+}
+
+input.big{
+  border-radius:var(--border-radius-small);
+  padding: .7em .3em .4em .3em;
 }
 
 </style>

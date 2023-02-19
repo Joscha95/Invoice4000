@@ -2,7 +2,7 @@
 </script>
 
 <template>
-      
+      <div @click="newClient()" class="add button black">+</div>
       <div v-for="(client,i) in store.clients" :key="i"
         :class="{open : client.expanded,client_row:true}"
         >
@@ -15,7 +15,7 @@
           <VClient :client="client"/>
         </div>
       </div>
-      <div @click="newClient()" class="add button black">+</div>
+      
 
 </template>
 
@@ -54,6 +54,7 @@
   padding: .5em 0 .4em 0;
   border-bottom: var(--border);
   box-sizing: border-box;
+  clear: both;
 }
 .client_row_info{
   display: none;
@@ -79,6 +80,7 @@
 }
 .add.button{
   text-align: center;
-  margin-top: var(--site-padding);
+  float: right;
+  margin-bottom: var(--site-padding);
 }
 </style>
