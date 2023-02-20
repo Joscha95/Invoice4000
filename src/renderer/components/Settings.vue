@@ -1,5 +1,5 @@
 <template>
-<div id="settings" class="center" @drop="onDrop">
+<div id="settings" @drop="onDrop">
   <table>
     <tr>
       <td>Figma Access token </td>
@@ -16,26 +16,44 @@
   </table>
 
   <div v-if="layoutErr != null">{{ layoutErr.err }}</div>
- 
+  <div class="layouts"> 
+    <h2>{{store.settings.figmaFile.name}}</h2>
+    <div v-if="store.settings.figmaFile.invoice" class="green">
+      <h3>found invoice</h3>
+    </div>
+    <div v-else class="red">
+      <h3>missing invoice</h3>
+      <div class="help">
+        Please add a Frame named “invoice_4000” <br> and 595x842 px to your File  
+      </div>
+    </div>
+    <div v-if="store.settings.figmaFile.quote" class="green">
+      <h3>found quote</h3>
+    </div>
+    <div v-else class="red">
+      <h3>missing quote</h3>
+      <div class="help">
+        Please add a Frame named “quote_4000” <br> and 595x842 px to your File  
+      </div>
+    </div>
+    <div class="select_fonts">
+        <div v-for="font in store.settings.figmaFile.fonts" :key="font" class="select_font">
+          <label>{{font}}: </label>
 
-  <ul >
-      <li 
-      v-for="layout in store.settings.figmaFile.layouts" 
-      :key="layout.name">
-          <div>{{ layout.name }}</div>
-          <div v-for="font in layout.fonts" :key="font" class="select_font">
-              <label>{{font}}: </label>
+          <select :name="font" @change="setFonts($event,font)">
+              <option disabled selected value> -- select a font -- </option>
+              <option v-for="fontFile in store.fonts" :key="fontFile" :selected="store.settings.figmaFile.getFontFileName(font)==fontFile" :value="fontFile">{{fontFile}}</option>
+          </select>
+      </div>
+    </div>
 
-              <select :name="font" @change="setFonts($event,layout,font)">
-                  <option disabled selected value> -- select a font -- </option>
-                  <option v-for="fontFile in store.fonts" :key="fontFile" :selected="layout.getFontFileName(font)==fontFile" :value="fontFile">{{fontFile}}</option>
-              </select>
-          </div>
-          <div>{{layout.isValid==true ?'Layout is valid' : layout.isValid}}</div>
-      </li>
+    <div class="button black" @click="uploadFont">Add Font</div>
+  </div>
 
-  </ul>
-  <div class="button black" @click="uploadFont">Add Font</div>
+  <div>
+    Taxrate: <basic-number-input v-model="store.settings.taxrate" :big="true" :inline="true" @change="store.settings.save()" :edit="true"/> %
+  </div>
+  
 </div>
   
 </template>
@@ -43,9 +61,10 @@
 <script>
 import store from '../store'
 import basicInput from './subcomponents/basic-input.vue';
+import basicNumberInput from './subcomponents/basic-number-input.vue';
 
 export default {
-  components: { basicInput },
+  components: { basicInput,basicNumberInput },
     data(){
         return{
             store,
@@ -62,8 +81,8 @@ export default {
             store.settings.save();
         },
 
-        setFonts(e,layout,font){
-            layout.setFontMap(font,e.target.value);
+        setFonts(e,font){
+            store.settings.figmaFile.setFontMap(font,e.target.value);
             this.store.settings.save();
         },
 
@@ -83,8 +102,8 @@ export default {
             .then(response => response.text())
             .then(text => JSON.parse(text))
             .then(result => {
-                console.log(result);
                 this.loading = false;
+                console.log(result);
                 this.store.settings.figmaFile.import(result);
                 this.store.settings.save();
             })
@@ -99,11 +118,39 @@ export default {
 </script>
 
 <style scoped>
+
+#settings{
+  padding-left: 10em;
+}
+
+#settings >*{
+  margin: 2em 0;
+}
 table{
   width:100%;
 }
 td:first-of-type{
   width: 13em;
+}
+
+h2,h3{
+  margin:0;
+}
+h2{
+  margin-bottom: 1em;
+}
+
+.layouts{
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0,0,0,.2);
+  width: max-content;
+  min-width:40em;
+  padding: 2em;
+  border-radius: 2em;
+}
+
+.select_fonts{
+  margin: 1em 0;
 }
 
 </style>

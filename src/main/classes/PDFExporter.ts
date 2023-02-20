@@ -14,6 +14,7 @@ class PositionXY{
 class PDFExporter{
     data;
     layout;
+    figmaFile;
 
     constructor(data:any){
         this.data = data;
@@ -26,10 +27,11 @@ class PDFExporter{
         doc.pipe(fs.createWriteStream(path));
 
         
-        const layout = await this.getLayout();
-        console.log(layout);
+        const figmaFile = await this.getFigmaFile();
+        const layout = figmaFile.invoice;
         const mainPos = new PositionXY(layout.data.absoluteBoundingBox.x,layout.data.absoluteBoundingBox.y);
         this.layout = layout;
+        this.figmaFile = figmaFile;
 
         layout.data.children.forEach(mainlayer => {
             if(mainlayer.name == 'custom'){
@@ -89,7 +91,7 @@ class PDFExporter{
                 this.data.json.positions.forEach((p,i) => {
                     this.addTextXY((i+1).toString(), doc, cells[0], new PositionXY(cells[0].absoluteBoundingBox.x - mainPos.x,oldY));
                     this.addTextXY(p.text, doc, cells[1], new PositionXY(cells[1].absoluteBoundingBox.x - mainPos.x,oldY));
-                    const newY = doc.y;
+                    const newY = doc.y + 5;
                     this.addTextXY(p.sum.toLocaleString('de-DE') +'E', doc, cells[2], new PositionXY(cells[2].absoluteBoundingBox.x - mainPos.x,oldY));
                     oldY = newY;
                 });
@@ -101,11 +103,11 @@ class PDFExporter{
         doc.end();
     }
 
-    async getLayout(){
+    async getFigmaFile(){
         const data = await fs.readFileSync('./appdata/settings.json', 'utf8');
         const s = JSON.parse(data);
         
-        return s.figmaFile.layouts[0];
+        return s.figmaFile;
     }
 
     private addText(txt:string, doc:any, layer:any, mainPos:PositionXY):void{
@@ -113,10 +115,19 @@ class PDFExporter{
         if(layer.style.textCase=='UPPER') txt=txt.toUpperCase()
         doc.fontSize(layer.style.fontSize);
         const f = this.getFontFileName(layer.style.fontPostScriptName);
-        console.log(layer);
 
         if(f!='') doc.font('./appdata/fonts/'+f);
-        doc.text(txt, layer.absoluteBoundingBox.x - mainPos.x, layer.absoluteBoundingBox.y - mainPos.y, {width: layer.absoluteBoundingBox.width, height: layer.absoluteBoundingBox.height, align:layer.style.textAlignHorizontal.toLowerCase()});
+        doc.text(
+          txt,
+          layer.absoluteBoundingBox.x - mainPos.x, layer.absoluteBoundingBox.y - mainPos.y,
+          {
+            width: layer.absoluteBoundingBox.width,
+            height: layer.absoluteBoundingBox.height,
+            align: layer.style.textAlignHorizontal.toLowerCase(),
+            characterSpacing: layer.style.letterSpacing,
+            underline: layer.style.textDecoration== "UNDERLINE"
+          }
+        );
     }
 
     private addTextXY(txt:string, doc:any, layer:any, position: PositionXY):void{
@@ -126,7 +137,17 @@ class PDFExporter{
 
         const f = this.getFontFileName(layer.style.fontPostScriptName);
         if(f!='') doc.font('./appdata/fonts/'+f);
-        doc.text(txt, position.x, position.y, {width: layer.absoluteBoundingBox.width, align:layer.style.textAlignHorizontal.toLowerCase()});
+        doc.text(
+          txt,
+          position.x,
+          position.y,
+          {
+            width: layer.absoluteBoundingBox.width,
+            align:layer.style.textAlignHorizontal.toLowerCase(),
+            characterSpacing: layer.style.letterSpacing,
+            underline: layer.style.textDecoration== "UNDERLINE"
+          }
+        );
     }
 
     private addRect(layer:any,doc:any,mainPos:PositionXY){
@@ -134,7 +155,7 @@ class PDFExporter{
     }
 
     private getFontFileName(key:string):string{
-        const f = this.layout.fontMap.find(f => f[0]==key);
+        const f = this.figmaFile.fontMap.find(f => f[0]==key);
         return f ? f[1] : '';
     }
 }

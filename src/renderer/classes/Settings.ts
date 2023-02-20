@@ -4,10 +4,12 @@ class Settings {
   figmaFileId:string
   figmaAccessToken:string
   figmaFile: FigmaFile
+  taxrate: number
 
   constructor(d?:any){
     this.figmaFileId = d?.figmaFileId || '' ;
     this.figmaAccessToken = d?.figmaAccessToken || '';
+    this.taxrate = d?.taxrate || 0;
     this.figmaFile = new FigmaFile();
   }
 
@@ -18,6 +20,7 @@ class Settings {
   load(d:any){
     this.figmaFileId = d.figmaFileId;
     this.figmaAccessToken = d.figmaAccessToken;
+    this.taxrate = d.taxrate;
     this.figmaFile.load(d.figmaFile);
   }
 }

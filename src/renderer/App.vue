@@ -160,6 +160,19 @@ export default {
     background-color: rgb(128, 128, 128);
   }
 
+  .red{
+    color: red
+  }
+
+  .green{
+    color: #1aff00;
+  }
+
+  .help{
+    font-size: var(--fs2);
+    color:#c8c8c8
+  }
+
 
   
 </style>

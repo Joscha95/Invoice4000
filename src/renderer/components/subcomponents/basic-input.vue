@@ -24,7 +24,6 @@ export default {
       edit(){
         if(!this.edit) return
         this.$nextTick(function () {
-            
             this.$refs.ele.style.width = "5px";
             this.$refs.ele.style.width = (this.$refs.ele.scrollWidth+5)+"px";
         })

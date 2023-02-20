@@ -1,7 +1,7 @@
 class Layout{
     data;
     name: string;
-    fontMap: string[][]
+    
 
     public get isValid(): boolean|string {
         
@@ -33,33 +33,6 @@ class Layout{
     constructor(d:any){
         this.data = d;
         this.name = d.name;
-        this.fontMap = d.fontMap || [];        
-    }
-
-    setFontMap(key:string,value:string){
-        const f = this.fontMap.find((k:string[]) => { return k[0] == key });
-
-        if(f) {
-            f[1] = value;
-        }else{
-            this.fontMap.push([key,value]);
-        }
-    }
-
-    initFontMap(m:any){
-        this.fontMap = m;
-    }
-
-    getFontFileName(key:string){
-        
-        const f = this.fontMap.find((k:string[]) => { return k[0] == key });
-
-
-        if(f) {
-            return f[1]
-        }else{
-            return ''
-        }
     }
 
     private getFonts(l:any, fts:string[]):void{
