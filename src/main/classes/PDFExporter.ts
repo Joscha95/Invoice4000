@@ -86,17 +86,23 @@ class PDFExporter{
                     mainlayer.children.find( l => l.name == 'price')
                 ];
 
+                const cell_margin_bottom = 5;
+
                 let oldY = cells[0].absoluteBoundingBox.y - mainPos.y;
 
                 this.data.json.positions.forEach((p,i) => {
                     this.addTextXY((i+1).toString(), doc, cells[0], new PositionXY(cells[0].absoluteBoundingBox.x - mainPos.x,oldY));
                     this.addTextXY(p.text, doc, cells[1], new PositionXY(cells[1].absoluteBoundingBox.x - mainPos.x,oldY));
-                    const newY = doc.y + 5;
+                    const newY = doc.y + cell_margin_bottom;
                     this.addTextXY(p.sum.toLocaleString('de-DE') +'E', doc, cells[2], new PositionXY(cells[2].absoluteBoundingBox.x - mainPos.x,oldY));
                     oldY = newY;
                 });
 
-                this.addTextXY(this.data.json.sum.toLocaleString('de-DE') +'E', doc, cells[2], new PositionXY(cells[2].absoluteBoundingBox.x- mainPos.x,oldY+10));
+                const sumCell = mainlayer.children.find( l => l.name == 'sum')
+
+                this.addTextXY(`Summe: ${this.data.json.sum.toLocaleString('de-DE')}E` , doc, sumCell, new PositionXY(sumCell.absoluteBoundingBox.x- mainPos.x, oldY + cell_margin_bottom * 2));
+                this.addTextXY(`Mehrwertsteuer(${this.data.json.taxrate}%): ${this.data.json.taxSum.toLocaleString('de-DE')}E`, doc, sumCell, new PositionXY(sumCell.absoluteBoundingBox.x- mainPos.x, doc.y + cell_margin_bottom));
+                this.addTextXY(`Gesamt: ${this.data.json.overallSum.toLocaleString('de-DE')}E` , doc, sumCell, new PositionXY(sumCell.absoluteBoundingBox.x- mainPos.x, doc.y + cell_margin_bottom));
             }
         });
         

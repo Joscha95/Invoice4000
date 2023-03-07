@@ -62,24 +62,24 @@ class Storage {
     deleteActiveInvoice(){
       this.activeInvoice?.delete();
       this.activeInvoice = undefined;
-      this.invoices = this.invoices.filter((i:Invoice) => !i.deleted);
       this.updateInvoices();
     }
 
     updateInvoices(){
+      this.invoices = this.invoices.filter((i:Invoice) => !i.deleted);
       this.clients.forEach(c => c.invoices = this.invoices.filter( i => i.client.id == c.id))
     }
 
     newInvoice(client:Client){
-        window.electron.getNextInvoiceNumber().then((num:string) => {
-            const inv = new Invoice(num, client || this.clients[0]);
-            this.invoices.push(inv);
-            inv.save();
-            if(this.mode=='Clients') this.toggleMode();
-            this.activeInvoice = inv;
-            this.updateInvoices();
-          });
+      const num = this.settings.getNextInvoiceNumber();
+      const inv = new Invoice(this.settings.invoicenumber.toString(), client || this.clients[0],this.settings.taxrate);
+      this.invoices.push(inv);
+      inv.save();
+      this.activeInvoice = inv;
+      this.updateInvoices();
     }
+
+    
 
     getClient(id:string){
         const c:any = this.clients.find( c => c.id == id);
@@ -87,12 +87,6 @@ class Storage {
             console.log(id+' client not found');
         }
         return c;
-    }
-
-    toggleMode(){
-        this.mode = this.mode == 'Clients' ? 'Invoices' : 'Clients';
-        this.activeClient = undefined;
-        this.activeInvoice = undefined;
     }
 
     saveClients(){

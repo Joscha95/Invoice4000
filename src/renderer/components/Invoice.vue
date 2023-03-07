@@ -1,52 +1,55 @@
 <template>
     <div class="invoice_editor" v-if="store.activeInvoice">
-        <div class="ie_form">
-          <button-wrapper>
-            <div class="edit button red" v-if="edit" @click="store.deleteActiveInvoice()">delete</div> 
-            <div class="edit button black" @click="edit=!edit; if(!edit) store.activeInvoice.save()">{{edit ? "save" : "edit"}}</div>
-            <div class="edit button black" v-if="!edit" @click="store.activeInvoice = null;edit=false;">done</div> 
-          </button-wrapper>
-          
-            <div class="ie_adress">
-                <select v-if="edit" v-model="clientId" @change="changeClient">
-                    <option v-for="client in store.clients" :key="client.id" :value="client.id">{{ client.name }}</option>
-                </select>
-                <div>
-                    <span v-if="!edit"> {{ store.activeInvoice.client.name }} <br> </span>
-                    {{ store.activeInvoice.client.street }} <br>
-                    {{ store.activeInvoice.client.zip }} {{ store.activeInvoice.client.city }} <br>
-                </div>
-            </div>
-            
-            <h1>Rechnung</h1>
-
-            <div class="ie_body_header">
-                <div>Nr. {{ store.activeInvoice.number }}</div> <div>Kundennr. {{ store.activeInvoice.client.number }}</div> <div>{{ store.activeInvoice.date }}</div>
-            </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Pos.</th>
-                        <th>Leistung</th>
-                        <th>Gesamtpreis</th>
-                    </tr>
-                    
-                </thead>
-                <tbody>
-                    <tr v-for="(position, i) in store.activeInvoice.positions" :key="i">
-                        <td>{{ ('0'+(i+1)).slice(-3) }}</td>
-                        <td><basic-textarea v-model="position.text" :edit="edit"/></td>
-                        <td v-if="edit"> <basic-number-input v-model="position.sum" :edit="edit"/> </td>
-                        <td v-else > {{ position.sum.toLocaleString('de-DE') }}E </td>
-                    </tr>
-                </tbody>
-            </table>
-            <div v-if="edit" class="ie_position_add_subtract">
-              <span @click="store.activeInvoice.addPosition()" class="button grey">+</span>
-              <span @click="store.activeInvoice.removePosition()" class="button grey">-</span>
+      <div id="invoice_bg" @click="store.activeInvoice = null;edit=false;"></div>
+      <div class="ie_form">
+        <button-wrapper>
+          <div class="edit button red" v-if="edit" @click="store.deleteActiveInvoice();edit=false">delete</div>
+          <div class="edit button black" @click="store.activeInvoice.export()">export</div>
+          <div class="edit button black" @click="edit=!edit;">{{edit ? "save" : "edit"}}</div>
+        </button-wrapper>
+        
+          <div class="ie_adress">
+              <select v-if="edit" v-model="clientId" @change="changeClient">
+                  <option v-for="client in store.clients" :key="client.id" :value="client.id">{{ client.name }}</option>
+              </select>
+              <div>
+                  <span v-if="!edit"> {{ store.activeInvoice.client.name }} <br> </span>
+                  {{ store.activeInvoice.client.street }} <br>
+                  {{ store.activeInvoice.client.zip }} {{ store.activeInvoice.client.city }} <br>
               </div>
-            <div class="ie_sum">Gesamt: {{ store.activeInvoice.sum.toLocaleString('de-DE') }}E</div>
-        </div>
+          </div>
+          
+          <h1>Rechnung</h1>
+
+          <div class="ie_body_header">
+              <div>Nr. {{ store.activeInvoice.number }}</div> <div>Kundennr. {{ store.activeInvoice.client.number }}</div> <div>{{ store.activeInvoice.date }}</div>
+          </div>
+          <table>
+              <thead>
+                  <tr>
+                      <th>Pos.</th>
+                      <th>Leistung</th>
+                      <th>Gesamtpreis</th>
+                  </tr>
+                  
+              </thead>
+              <tbody>
+                  <tr v-for="(position, i) in store.activeInvoice.positions" :key="i">
+                      <td>{{ ('0'+(i+1)).slice(-3) }}</td>
+                      <td><basic-textarea v-model="position.text" :edit="edit"/></td>
+                      <td v-if="edit"> <basic-number-input v-model="position.sum" :edit="edit"/> </td>
+                      <td v-else > {{ position.sum.toLocaleString('de-DE') }}E </td>
+                  </tr>
+              </tbody>
+          </table>
+          <div v-if="edit" class="ie_position_add_subtract">
+            <span @click="store.activeInvoice.addPosition()" class="button grey">+</span>
+            <span @click="store.activeInvoice.removePosition()" class="button grey">-</span>
+            </div>
+          <div class="ie_sum">Summe: {{ store.activeInvoice.sum.toLocaleString('de-DE') }}E</div>
+          <div class="ie_sum">Mehrwertsteuer(<basic-number-input v-model="store.activeInvoice.taxrate" :inline="true" :edit="edit"/>%): {{ store.activeInvoice.taxSum.toLocaleString('de-DE') }}E</div>
+          <div class="ie_sum">Gesamt: {{ store.activeInvoice.overallSum.toLocaleString('de-DE') }}E</div>
+      </div>
     </div>
 </template>
 
@@ -112,6 +115,14 @@ export default {
   box-sizing: border-box;
   left:50%;
   transform: translateX(-50%);
+}
+
+#invoice_bg{
+  position: absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  top:0;
 }
 
 h1{

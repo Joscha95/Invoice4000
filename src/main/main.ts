@@ -1,6 +1,6 @@
 import {app, BrowserWindow, dialog, ipcMain, session, globalShortcut} from 'electron';
 import {join} from 'path';
-import dayjs from 'dayjs';
+
 import PDFExporter from './classes/PDFExporter';
 import { file } from 'pdfkit';
 const fs = require('fs');
@@ -20,7 +20,7 @@ function createWindow ():BrowserWindow {
     }
   });
 
-  mainWindow.webContents.openDevTools()
+  //mainWindow.webContents.openDevTools()
 
   if (process.env.NODE_ENV === 'development') {
     const rendererPort = process.argv[2];
@@ -40,7 +40,6 @@ app.whenReady().then(() => {
   ipcMain.handle('files:get', handleGetFile);
   ipcMain.handle('fonts:get', handleGetFonts);
   ipcMain.handle('fonts:upload', handleUploadFonts);
-  ipcMain.handle('invoices:getNextInvoiceNumber', handleGetNextInvoiceNumber);
   
 
   rendererWindow = createWindow();
@@ -103,8 +102,20 @@ ipcMain.on('files:delete',(event, data)=>{
 ipcMain.on('invoice:export',(event, invoice)=>{
   try {
     const exp = new PDFExporter(invoice);
-    exp.export(`./appdata/invoices/R_${invoice.number}.pdf`);
-    console.log(`exported invoice ${invoice.number}`);
+      dialog.showOpenDialog({
+        properties: ['openDirectory']
+    }).then(response => {
+      if (!response.canceled) {
+        const p = response.filePaths[0];
+        console.log(p);
+        exp.export(`${p}/R_${invoice.number}.pdf`);
+        console.log(`exported invoice ${invoice.number}`);
+      } else {
+        console.log("no directory selected");
+      }
+      
+    });
+    
   } catch(e) {
     console.log(e)
   }
@@ -178,27 +189,6 @@ async function handleGetFile(event,file:string) {
     console.log(file);
     
     return data;
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-async function handleGetNextInvoiceNumber(){
-  try {
-    let data = await fs.readFileSync('./appdata/invoice_number.txt', 'utf8');
-    
-    let num = data.substring(2);
-    num = parseInt(num);
-    num++;
-
-    const oldY = data.substring(0,2);
-    const y = dayjs().format('YY');
-    if(y != oldY) num = 0;
-    data = y+('00'+num).slice(-3);
-
-    fs.writeFileSync('./appdata/invoice_number.txt', data ,'utf8');
-    return data;
-
   } catch (error) {
     console.log(error);
   }

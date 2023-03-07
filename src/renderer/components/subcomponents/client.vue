@@ -4,6 +4,7 @@
 <template>
   <div class="client_editor">
     <button-wrapper>
+      <div class="edit button red" v-if="edit" @click="$emit('delete',client)">delete</div>
       <div class="edit button black" @click="edit=!edit; if(!edit) store.saveClients();">{{edit ? "save" : "edit"}}</div>
     </button-wrapper>
     <div class="ce_props">
@@ -67,10 +68,6 @@
       ButtonWrapper
     },
     methods: {
-      deleteSelected(){
-        this.store.clients.splice(this.store.clients.indexOf(this.client),1);
-        this.client = null;
-      }
       
     }
   }
@@ -116,7 +113,7 @@
   }
 
   .name{
-    padding-right:4.5em;
+    padding-right:10em;
   }
 
   input{

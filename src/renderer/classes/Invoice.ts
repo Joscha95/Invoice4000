@@ -6,8 +6,8 @@ class Position{
     sum:number;
     
     constructor(text:string = '', sum:number = 0){
-        this.sum=sum;
-        this.text=text;
+        this.sum = sum;
+        this.text = text;
     }
 }
 
@@ -20,18 +20,29 @@ class Invoice{
     number: string;
     date: string;
     color:string;
+    taxrate:number;
+
 
     public get sum(): number{
         return this.positions.reduce((p,c) => p+c.sum, 0);
+    }
+
+    public get taxSum(): number{
+        return this.sum * (this.taxrate/100) ;
+    }
+
+    public get overallSum(): number{
+        return this.sum + this.taxSum ;
     }
 
     public get adress():string {
         return this.client.name + '<br/>' + this.client.street + '<br/>' + this.client.zip + ' ' + this.client.city
     }
 
-    constructor(num:string, client:Client){
+    constructor(num:string, client:Client, taxrate:number = 0){
         this.number = num;
         this.client = client;
+        this.taxrate = taxrate;
         this.positions = [];
         this.color = `hsl(${Math.random()*360}deg 100% 50%)`;
         this.date = dayjs().format('DD.MM.YYYY');
@@ -51,7 +62,6 @@ class Invoice{
 
     save(){
         window.electron.ipcRenderer.send('files:save', {path:`./appdata/invoices/R_${this.number}.json`, content:this.serialize});
-        this.export();
     }
 
     delete(){
@@ -66,6 +76,7 @@ class Invoice{
     load(obj:any){
         this.date = obj.date;
         this.color = obj.color || this.color;
+        this.taxrate = obj.taxrate || 0;
         obj.positions.forEach( (p:any) => this.positions.push(new Position(p.text, p.sum)))
     }
 
@@ -74,6 +85,9 @@ class Invoice{
             positions: this.positions,
             number : this.number,
             sum: this.sum,
+            taxSum: this.taxSum,
+            overallSum: this.overallSum,
+            taxrate: this.taxrate,
             client: this.client.id,
             date: this.date,
             color:this.color,

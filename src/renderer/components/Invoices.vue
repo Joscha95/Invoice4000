@@ -23,7 +23,7 @@
         computed:{
           invoicesGrouped(){
             const m = {};
-            this.store.invoices.forEach(i => {
+            this.store.invoices.reverse().forEach(i => {
               const k = i.date.split('.')[this.groupBy+1];
               if(m[k]) {
                 m[k].invoices.push(i);

@@ -7,6 +7,5 @@ contextBridge.exposeInMainWorld('electron', {
   getInvoices: () => ipcRenderer.invoke('invoices:get'),
   uploadFonts: () => ipcRenderer.invoke('fonts:upload'),
   getFonts: () => ipcRenderer.invoke('fonts:get'),
-  getFile: (file:string) => ipcRenderer.invoke('files:get',file),
-  getNextInvoiceNumber: () => ipcRenderer.invoke('invoices:getNextInvoiceNumber')
+  getFile: (file:string) => ipcRenderer.invoke('files:get',file)
 })

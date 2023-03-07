@@ -12,7 +12,7 @@
           <div class="client_head_icount"> {{ client.invoices.length }} </div>
         </div>
         <div class="client_row_info">
-          <VClient :client="client"/>
+          <VClient :client="client" @delete="deleteClient"/>
         </div>
       </div>
       
@@ -36,11 +36,11 @@
       VClient
     },
     methods: {
-      deleteSelected(){
-        if(!this.selectedClient) return;
-        this.store.clients.splice(this.store.clients.indexOf(this.selectedClient),1);
-        this.selectedClient = null;
-        this.activeClient = null;
+      deleteClient(client){
+        client.invoices.forEach(i => i.delete());
+        this.store.clients.splice(this.store.clients.indexOf(client),1);
+        this.store.saveClients();
+        this.store.updateInvoices();
       },
       newClient(){
         this.store.clients.push(new Client(("00" + (parseInt(this.store.clients[this.store.clients.length-1]?.number)+1)).slice(-3)));
@@ -52,7 +52,7 @@
 <style scoped>
 .client_row{
   padding: .5em 0 .4em 0;
-  border-bottom: var(--border);
+  border-bottom: .5px solid black;
   box-sizing: border-box;
   clear: both;
 }
