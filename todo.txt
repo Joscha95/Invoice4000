@@ -10,3 +10,8 @@
 - immmer nur 1 client offen?
 
 - logo
+
+- pdf creation: 
+  - rotate
+  - line height
+  - images
