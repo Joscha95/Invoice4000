@@ -17,7 +17,7 @@ class Settings {
   }
 
   save(){
-    window.electron.ipcRenderer.send('files:save', {path:`./appdata/settings.json`,content:JSON.stringify(this)});
+    window.electron.ipcRenderer.send('files:save', {path:`/settings.json`,content:JSON.stringify(this)});
   }
 
   load(d:any){

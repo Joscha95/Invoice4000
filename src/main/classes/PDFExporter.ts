@@ -15,10 +15,11 @@ class PDFExporter{
     data;
     layout;
     figmaFile;
+    resourcesPath:string;
 
-    constructor(data:any){
+    constructor(data:any,resourcesPath:string){
         this.data = data;
-        
+        this.resourcesPath = resourcesPath;
         this.data.json = JSON.parse(this.data.json);
     }
 
@@ -29,6 +30,8 @@ class PDFExporter{
         
         const figmaFile = await this.getFigmaFile();
         const layout = figmaFile.invoice;
+        console.log(layout);
+        
         const mainPos = new PositionXY(layout.data.absoluteBoundingBox.x,layout.data.absoluteBoundingBox.y);
         this.layout = layout;
         this.figmaFile = figmaFile;
@@ -110,7 +113,7 @@ class PDFExporter{
     }
 
     async getFigmaFile(){
-        const data = await fs.readFileSync('./appdata/settings.json', 'utf8');
+        const data = await fs.readFileSync(this.resourcesPath + '/settings.json', 'utf8');
         const s = JSON.parse(data);
         
         return s.figmaFile;
@@ -122,7 +125,7 @@ class PDFExporter{
         doc.fontSize(layer.style.fontSize);
         const f = this.getFontFileName(layer.style.fontPostScriptName);
 
-        if(f!='') doc.font('./appdata/fonts/'+f);
+        if(f!='') doc.font(this.resourcesPath + '/fonts/'+f);
         doc.text(
           txt,
           layer.absoluteBoundingBox.x - mainPos.x, layer.absoluteBoundingBox.y - mainPos.y,
@@ -142,7 +145,7 @@ class PDFExporter{
         if(layer.style.textCase=='UPPER') txt=txt.toUpperCase()
 
         const f = this.getFontFileName(layer.style.fontPostScriptName);
-        if(f!='') doc.font('./appdata/fonts/'+f);
+        if(f!='') doc.font(this.resourcesPath + '/fonts/'+f);
         doc.text(
           txt,
           position.x,

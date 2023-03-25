@@ -1,0 +1,12 @@
+- subcompnents: basic input v basic number input, welches brauche ich? viel wurde doppelt geschrieben
+
+- warnung wenn layout nicht komplett vor export, export deaktivieren?
+
+- font reload im rendere wenn hochgeladen
+- font select custom select field?
+- warnung wenn nicht verbunden mit internet bei figma file load
+
+- wenn neuer client direkt öffnen + in edit mode
+- immmer nur 1 client offen?
+
+- logo

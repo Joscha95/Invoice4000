@@ -71,7 +71,7 @@ export default {
 </script>
 
 <style>
-  @font-face {
+  /* @font-face {
     font-family: surt;
     src: url('./fonts/AT Surt Regular.otf');
   }
@@ -79,7 +79,7 @@ export default {
   @font-face {
     font-family: receipt;
     src: url('./fonts/fake receipt.otf');
-  }
+  } */
 
   :root{
     --lightgray: #FAFAFA ;

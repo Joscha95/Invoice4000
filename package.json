@@ -1,7 +1,7 @@
 {
-  "name": "electron-vue-template",
+  "name": "invoice 4000",
   "version": "0.1.0",
-  "description": "A minimal Electron + Vue application",
+  "description": "A minimal invoice maker",
   "main": "build/main/main.js",
   "scripts": {
     "dev": "node scripts/dev-server.js",
@@ -13,14 +13,15 @@
     "package": "electron-forge package",
     "make": "electron-forge make"
   },
-  "repository": "https://github.com/deluze/electron-vue-template",
+  "repository": "https://github.com/Joscha95/Invoice4000",
   "author": {
-    "name": "Deluze",
-    "url": "https://github.com/Deluze"
+    "name": "Joscha95",
+    "url": "https://github.com/Joscha95"
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.5",
     "@electron-forge/maker-deb": "^6.0.5",
+    "@electron-forge/maker-rpm": "^6.0.5",
     "@electron-forge/maker-squirrel": "^6.0.5",
     "@electron-forge/maker-zip": "^6.0.5",
     "@types/pdfkit": "^0.12.8",
@@ -29,40 +30,13 @@
     "chalk": "^4.1.2",
     "chokidar": "^3.5.3",
     "electron": "^20.1.0",
-    "electron-builder": "^23.3.3",
     "typescript": "^4.8.2",
     "vite": "^3.0.9"
   },
   "dependencies": {
     "dayjs": "^1.11.5",
+    "electron-squirrel-startup": "^1.0.0",
     "pdfkit": "^0.13.0",
     "vue": "^3.2.36"
-  },
-  "config": {
-    "forge": {
-      "packagerConfig": {},
-      "makers": [
-        {
-          "name": "@electron-forge/maker-squirrel",
-          "config": {
-            "name": "electron_quick_start"
-          }
-        },
-        {
-          "name": "@electron-forge/maker-zip",
-          "platforms": [
-            "darwin"
-          ]
-        },
-        {
-          "name": "@electron-forge/maker-deb",
-          "config": {}
-        },
-        {
-          "name": "@electron-forge/maker-rpm",
-          "config": {}
-        }
-      ]
-    }
   }
 }

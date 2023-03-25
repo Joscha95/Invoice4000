@@ -61,11 +61,11 @@ class Invoice{
     }
 
     save(){
-        window.electron.ipcRenderer.send('files:save', {path:`./appdata/invoices/R_${this.number}.json`, content:this.serialize});
+        window.electron.ipcRenderer.send('files:save', {path:`/invoices/R_${this.number}.json`, content:this.serialize});
     }
 
     delete(){
-      window.electron.ipcRenderer.send('files:delete', {path:`./appdata/invoices/R_${this.number}.json`});
+      window.electron.ipcRenderer.send('files:delete', {path:`/invoices/R_${this.number}.json`});
       this.deleted = true;
     }
 

@@ -17,20 +17,30 @@ export default {
         inline:Boolean
     },
     mounted(){
-      if(!this.$refs.ele) return;
-      this.$refs.ele.style.width = "5px";
-      this.$refs.ele.style.width = (this.$refs.ele.scrollWidth+5)+"px";
+      this.setWidth()
+    },
+    watch:{
+      edit(){
+        if(!this.edit) return
+        this.$nextTick(function () {
+            this.setWidth();
+        })
+      }
     },
     methods: {
         updateValue(e){
             let val = e.target.value;
             val = parseFloat(val) || 0;
 
-            e.target.style.width = "5px";
-            e.target.style.width = (e.target.scrollWidth+5)+"px";
+            this.setWidth();
 
             this.$emit('update:modelValue', val);
             this.$emit('changed', val);
+        },
+        setWidth(){
+          if(!this.$refs.ele) return;
+          this.$refs.ele.style.width = "5px";
+          this.$refs.ele.style.width = (this.$refs.ele.scrollWidth+5)+"px";
         }
     },
 }

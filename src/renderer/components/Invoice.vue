@@ -5,7 +5,7 @@
         <button-wrapper>
           <div class="edit button red" v-if="edit" @click="store.deleteActiveInvoice();edit=false">delete</div>
           <div class="edit button black" @click="store.activeInvoice.export()">export</div>
-          <div class="edit button black" @click="edit=!edit;">{{edit ? "save" : "edit"}}</div>
+          <div class="edit button black" @click="edit=!edit; if(!edit) store.activeInvoice.save()">{{edit ? "save" : "edit"}}</div>
         </button-wrapper>
         
           <div class="ie_adress">

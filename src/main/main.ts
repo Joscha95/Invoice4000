@@ -6,6 +6,7 @@ import { file } from 'pdfkit';
 const fs = require('fs');
 const path = require('path');
 let rendererWindow:BrowserWindow;
+let resourcesPath:string;
 
 function createWindow ():BrowserWindow {
   const mainWindow = new BrowserWindow({
@@ -25,9 +26,11 @@ function createWindow ():BrowserWindow {
   if (process.env.NODE_ENV === 'development') {
     const rendererPort = process.argv[2];
     mainWindow.loadURL(`http://localhost:${rendererPort}`);
+    resourcesPath = './appdata_dev';
   }
   else {
-    mainWindow.loadFile(join(app.getAppPath(), 'renderer', 'index.html'));
+    mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
+    resourcesPath = process.resourcesPath + '/appdata';
   }
 
   return mainWindow;
@@ -74,7 +77,7 @@ ipcMain.on('message', (event, message) => {
 
 ipcMain.on('clients:save',(event, data)=>{
   try {
-    fs.writeFileSync('./appdata/clients.json', data, 'utf-8');
+    fs.writeFileSync(resourcesPath + '/clients.json', data, 'utf-8');
     console.log('saved clients');
   } catch(e) {
     console.log(e)
@@ -83,8 +86,8 @@ ipcMain.on('clients:save',(event, data)=>{
 
 ipcMain.on('files:save',(event, data)=>{
   try {
-    fs.writeFileSync(data.path, data.content, 'utf-8');
-    console.log(`saved ${data.path}`);
+    fs.writeFileSync(resourcesPath + data.path, data.content, 'utf-8');
+    console.log(`saved ${resourcesPath + data.path}`);
   } catch(e) {
     console.log(e)
   }
@@ -92,8 +95,8 @@ ipcMain.on('files:save',(event, data)=>{
 
 ipcMain.on('files:delete',(event, data)=>{
   try {
-    fs.unlinkSync(data.path);
-    console.log(`deleted ${data.path}`);
+    fs.unlinkSync(resourcesPath + data.path);
+    console.log(`deleted ${resourcesPath + data.path}`);
   } catch(e) {
     console.log(e)
   }
@@ -101,7 +104,7 @@ ipcMain.on('files:delete',(event, data)=>{
 
 ipcMain.on('invoice:export',(event, invoice)=>{
   try {
-    const exp = new PDFExporter(invoice);
+    const exp = new PDFExporter(invoice,resourcesPath);
       dialog.showOpenDialog({
         properties: ['openDirectory']
     }).then(response => {
@@ -123,7 +126,7 @@ ipcMain.on('invoice:export',(event, invoice)=>{
 
 async function handleGetClients() {
   try {
-    const data = await fs.readFileSync('./appdata/clients.json', 'utf8');
+    const data = await fs.readFileSync(resourcesPath + '/clients.json', 'utf8');
     return data;
   } catch (error) {
     console.log(error);
@@ -132,7 +135,7 @@ async function handleGetClients() {
 
 async function handleGetSettings() {
   try {
-    const data = await fs.readFileSync('./appdata/settings.json', 'utf8');
+    const data = await fs.readFileSync(resourcesPath + '/settings.json', 'utf8');
     return data;
   } catch (error) {
     console.log(error);
@@ -143,7 +146,7 @@ async function handleGetFonts() {
   try {
     const fts:string[] = [];
 
-    const files = await fs.promises.readdir('./appdata/fonts');
+    const files = await fs.promises.readdir(resourcesPath + '/fonts');
     
     files.forEach( (f:string) => {
       if(f.split('.').pop()!='ttf' && f.split('.').pop() != 'otf') return;
@@ -169,7 +172,7 @@ async function handleUploadFonts() {
         console.log(response.filePaths[0]);
         response.filePaths.forEach(file => {
           const name = path.basename(file);
-          fs.copyFile(file, './appdata/fonts/'+name, (err) => {
+          fs.copyFile(file, resourcesPath + '/fonts/'+name, (err) => {
             if (err) throw err;
             console.log('copied: ' + name);
           });
@@ -198,11 +201,11 @@ async function handleGetInvoices() {
   try {
     const invs:any = [];
 
-    const files = await fs.promises.readdir('./appdata/invoices');
+    const files = await fs.promises.readdir(resourcesPath + '/invoices');
     
     files.forEach( (f:string) => {
       if(f.split('.').pop()!='json') return;
-      let r = fs.readFileSync('./appdata/invoices/'+f,'utf8');
+      let r = fs.readFileSync(resourcesPath + '/invoices/'+f,'utf8');
       r = JSON.parse(r);
       invs.push(r);
     });

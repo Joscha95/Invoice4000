@@ -43,8 +43,10 @@
         this.store.updateInvoices();
       },
       newClient(){
-        this.store.clients.push(new Client(("00" + (parseInt(this.store.clients[this.store.clients.length-1]?.number)+1)).slice(-3)));
+        const newNum = this.store.clients.length > 0 ? ("00" + (parseInt(this.store.clients[this.store.clients.length-1].number)+1)).slice(-3) : "001";
+        this.store.clients.push(new Client(newNum));
         this.store.activeClient = this.store.clients[this.store.clients.length-1];
+        this.store.saveClients();
       }
     }
   }
