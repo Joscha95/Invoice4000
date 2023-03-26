@@ -7,7 +7,5 @@ build
 .vscode
 .idea
 
-appdata/*
-appdata_dev/*
-out/*
-
+appdata_dev
+out

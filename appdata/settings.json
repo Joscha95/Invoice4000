@@ -1,0 +1,13 @@
+{
+  "figmaFileId": "fileID",
+  "figmaAccessToken": "your_access_token",
+  "figmaFile": {
+    "layouts": [],
+    "quote": {},
+    "invoice": {},
+    "fontMap": [],
+    "name": ""
+  },
+  "taxrate": 19,
+  "invoicenumber": "23000"
+}
