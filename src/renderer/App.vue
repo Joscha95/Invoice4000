@@ -3,18 +3,40 @@ import Clients from './components/Clients.vue'
 import Invoices from './components/Invoices.vue'
 import Invoice from './components/Invoice.vue'
 import Settings from './components/Settings.vue'
+import Help from './components/Help.vue'
 
 import store from './store'
-import CustomSelect from './components/subcomponents/custom-select.vue'
+import toggle from './components/subcomponents/toggle.vue'
+import sideOverlay from './components/subcomponents/side-overlay.vue'
 </script>
 
 <template>
   <header>
-    <CustomSelect v-model="store.mode" :options="[ 'Clients',  'Invoices', 'Settings']"/>
+    <div>
+      <toggle v-model="isClients" :bool="isClients" :on="'Clients'" :off="'Invoices'"/>
+    </div>
+    <div @click="store.overlayMode = store.overlayMode=='Settings' ? 'Hide': 'Settings'">Settings</div>
+    <div @click="store.overlayMode = store.overlayMode=='Help' ? 'Hide': 'Help'">?</div>
   </header>
   <main >
+    <Transition name="overlay-fade">
+      <side-overlay v-if="store.overlayMode=='Settings'" @close="store.overlayMode='Hide'">
+        <Settings />
+      </side-overlay>
+    </Transition>
+
+    <Transition name="overlay-fade">
+      <side-overlay v-if="store.overlayMode=='Help'">
+        <Help />
+      </side-overlay>
+    </Transition>
+
     <component :is="store.mode"/>
-    <Invoice />
+
+    <Transition name="invoice-fade">
+      <Invoice v-if="store.showInvoice" />
+    </Transition>
+    
   </main>
 </template>
 
@@ -24,7 +46,7 @@ export default {
   data() {
     return {
       store,
-      mode:'clients',
+      isClients:true,
       S:false,
       
     }
@@ -34,7 +56,13 @@ export default {
     Invoice,
     Settings,
     Clients,
-    CustomSelect
+    toggle,
+    Help
+  },
+  watch:{
+    isClients(){
+      this.store.mode = this.isClients ? 'clients' : 'invoices'
+    }
   },
   mounted(){
     window.electron.getClients().then(res => JSON.parse(res)).then(res => {
@@ -89,13 +117,17 @@ export default {
     --lightgreen:rgb(213, 235, 213) ;
     --anthrazite: rgb(40, 40, 40);
     --text-darkbg:rgb(250, 250, 250);
-    --border: 1px solid black;
+    --border: .5px solid black;
 
     --fs0: .9rem;
     --fs1: calc(var(--fs0)*.9);
     --fs2: calc(var(--fs0)*.7);
 
     --border-radius-small: 5px;
+
+    --bgBlur: 3px;
+
+    --padding-top:10em;
 
     --site-padding: .5rem;
   }
@@ -117,13 +149,39 @@ export default {
   header{
     position: fixed;
     z-index: 100;
-    top:var(--site-padding);
-    left:var(--site-padding);
+    display: flex;
+    top:0;
+    left:0;
+    right:0;
+    box-sizing: border-box;
+    padding:var(--site-padding);
+    align-items: center;
+  }
+
+  header > div{
+    flex: 1;
+  }
+
+  header>div:not(:first-of-type){
+    flex: 0;
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+  }
+
+  header>div:not(:first-of-type):hover{
+    text-decoration-style: solid;
+  }
+
+  header div:nth-of-type(2){
+    padding-right: calc(var(--site-padding) * 2);
   }
 
   main{
-    margin-top: 10em;
+    margin-top: var(--padding-top);
   }
+
+
 
   .button{
     padding: .4em .8em;

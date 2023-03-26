@@ -5,7 +5,8 @@ import Invoice from './classes/Invoice'
 import Layout from './classes/Layout'
 import Settings from './classes/Settings'
 
-type Mode = 'Clients' | 'Invoices' | 'Settings';
+type Mode = 'Clients' | 'Invoices';
+type OverlayMode = 'Settings' | 'Help' | 'Hide';
 
 class Storage {
     protected clients: Client[] = []
@@ -14,18 +15,23 @@ class Storage {
     protected fonts: string[] = []
     activeClient?: Client
     activeInvoice?: Invoice
+    showInvoice: boolean
     mode: Mode
+    overlayMode: OverlayMode
     edit: boolean
     settings: Settings
 
     constructor(){
         this.mode = 'Clients';
+        this.overlayMode = 'Hide';
         this.edit = false;
+        this.showInvoice = false;
         this.settings = new Settings();
     }
     
     setActiveInvoice(inv:Invoice){
-        this.activeInvoice=inv;
+        this.activeInvoice = inv;
+        this.showInvoice = true;
     }
 
     loadClients(_clients:any[] ){
@@ -78,8 +84,6 @@ class Storage {
       this.activeInvoice = inv;
       this.updateInvoices();
     }
-
-    
 
     getClient(id:string){
         const c:any = this.clients.find( c => c.id == id);

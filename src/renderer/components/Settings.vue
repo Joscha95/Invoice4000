@@ -1,5 +1,5 @@
 <template>
-<div id="settings" @drop="onDrop">
+  <div id="settings" @drop="onDrop">
   <table>
     <tr>
       <td>Figma Access token </td>
@@ -121,10 +121,6 @@ export default {
 </script>
 
 <style scoped>
-
-#settings{
-  padding-left: 10em;
-}
 
 #settings >*{
   margin: 2em 0;

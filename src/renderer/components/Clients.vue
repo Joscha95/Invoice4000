@@ -15,8 +15,6 @@
           <VClient :client="client" @delete="deleteClient"/>
         </div>
       </div>
-      
-
 </template>
 
 

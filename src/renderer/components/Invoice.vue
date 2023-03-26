@@ -1,6 +1,6 @@
 <template>
-    <div class="invoice_editor" v-if="store.activeInvoice">
-      <div id="invoice_bg" @click="store.activeInvoice = null;edit=false;"></div>
+    <div class="invoice_editor">
+      <div id="invoice_bg" @click="store.showInvoice = false;edit=false;"></div>
       <div class="ie_form">
         <button-wrapper>
           <div class="edit button red" v-if="edit" @click="store.deleteActiveInvoice();edit=false">delete</div>
@@ -98,14 +98,34 @@ export default {
   bottom:0;
   right:0;
   z-index: 2000;
-  background-color: rgba(255,255,255,.76);
-  backdrop-filter: blur(15px);
+  backdrop-filter: blur(var(--bgBlur));
 }
+
+  .invoice-fade-enter-active,
+  .invoice-fade-leave-active {
+    transition: backdrop-filter 0.3s ease;
+  }
+
+  .invoice-fade-enter-to,
+  .invoice-fade-leave-from {
+    backdrop-filter: blur(var(--bgBlur));
+  }
+
+  .invoice-fade-enter-from,
+  .invoice-fade-leave-to {
+    backdrop-filter: blur(0);
+  }
+
+    .invoice-fade-enter-active .ie_form,
+  .invoice-fade-leave-active .ie_form {
+    transition: transform 0.3s ease, opacity 0.1s ease;
+  }
+
+  
 
 .ie_form{
   background-color: white;
   border:var(--border);
-  border-radius: var(--border-radius-small);
   position: absolute;
   bottom: 10%;
   top:10%;
@@ -114,7 +134,14 @@ export default {
   padding-top: 4em;
   box-sizing: border-box;
   left:50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.invoice-fade-enter-from  .ie_form,
+.invoice-fade-leave-to .ie_form {
+  transform: translateX(-50%) translateY(100%);
+  opacity: 0;
 }
 
 #invoice_bg{
