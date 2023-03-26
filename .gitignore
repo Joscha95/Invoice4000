@@ -8,4 +8,6 @@ build
 .idea
 
 appdata/*
+appdata_dev/*
 out/*
+
