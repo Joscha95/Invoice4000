@@ -4,6 +4,7 @@ import Invoices from './components/Invoices.vue'
 import Invoice from './components/Invoice.vue'
 import Settings from './components/Settings.vue'
 import Help from './components/Help.vue'
+import Messages from './components/Messages.vue'
 
 import store from './store'
 import toggle from './components/subcomponents/toggle.vue'
@@ -12,11 +13,14 @@ import sideOverlay from './components/subcomponents/side-overlay.vue'
 
 <template>
   <header>
-    <div>
-      <toggle v-model="isClients" :bool="isClients" :on="'Clients'" :off="'Invoices'"/>
-    </div>
-    <div @click="store.overlayMode = store.overlayMode=='Settings' ? 'Hide': 'Settings'">Settings</div>
-    <div @click="store.overlayMode = store.overlayMode=='Help' ? 'Hide': 'Help'">?</div>
+    <section id="header_bar">
+      <div>
+        <toggle v-model="isClients" :bool="isClients" :on="'Clients'" :off="'Invoices'"/>
+      </div>
+      <div @click="store.overlayMode = store.overlayMode=='Settings' ? 'Hide': 'Settings'">Settings</div>
+      <div @click="store.overlayMode = store.overlayMode=='Help' ? 'Hide': 'Help'">?</div>
+    </section>
+    <Messages/>
   </header>
   <main >
     <Transition name="overlay-fade">
@@ -26,7 +30,7 @@ import sideOverlay from './components/subcomponents/side-overlay.vue'
     </Transition>
 
     <Transition name="overlay-fade">
-      <side-overlay v-if="store.overlayMode=='Help'">
+      <side-overlay v-if="store.overlayMode=='Help'" @close="store.overlayMode='Hide'">
         <Help />
       </side-overlay>
     </Transition>
@@ -57,7 +61,8 @@ export default {
     Settings,
     Clients,
     toggle,
-    Help
+    Help,
+    Messages
   },
   watch:{
     isClients(){
@@ -75,6 +80,11 @@ export default {
     window.electron.getFonts().then(res => JSON.parse(res)).then(res => {
       store.setFonts(res);
     })
+
+    window.electron.onMessage((_event,message)=>{
+      store.notify(message.type,message.message);
+      console.log(message);
+    });
 
     window.electron.getSettings().then(res => JSON.parse(res)).then(res => {
       store.setSettings(res);
@@ -117,7 +127,11 @@ export default {
     --lightgreen:rgb(213, 235, 213) ;
     --anthrazite: rgb(40, 40, 40);
     --text-darkbg:rgb(250, 250, 250);
-    --green-sum: rgb(0, 255, 110);
+    --green-sum:  #6ae97b;
+    --Success-col: #0ac022;
+    --Neutral-col: white;
+    --Warning-col: rgb(255, 128, 0);
+    --Error-col: rgb(255, 0, 0);
     --border: 1px solid black;
 
     --fs0: .9rem;
@@ -126,7 +140,7 @@ export default {
 
     --border-radius-small: 5px;
 
-    --bgBlur: 3px;
+    --bgBlur: 5px;
 
     --padding-top:10em;
 
@@ -150,31 +164,35 @@ export default {
   header{
     position: fixed;
     z-index: 100;
-    display: flex;
     top:0;
     left:0;
     right:0;
     box-sizing: border-box;
     padding:var(--site-padding);
+  }
+
+  #header_bar{
+    display: flex;
+    width:100%;
     align-items: center;
   }
 
-  header > div{
+  #header_bar > div{
     flex: 1;
   }
 
-  header>div:not(:first-of-type){
+  #header_bar>div:not(:first-of-type){
     flex: 0;
     cursor: pointer;
     text-decoration: underline;
     text-decoration-style: dotted;
   }
 
-  header>div:not(:first-of-type):hover{
+  #header_bar>div:not(:first-of-type):hover{
     text-decoration-style: solid;
   }
 
-  header div:nth-of-type(2){
+  #header_bar div:nth-of-type(2){
     padding-right: calc(var(--site-padding) * 2);
   }
 

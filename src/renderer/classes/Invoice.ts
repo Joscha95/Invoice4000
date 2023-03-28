@@ -15,8 +15,8 @@ class Invoice{
     positions: Position[];
     client: Client;
     deleted = false;
+    notify:Function;
 
-    
     number: string;
     date: string;
     color:string;
@@ -39,11 +39,12 @@ class Invoice{
         return this.client.name + '<br/>' + this.client.street + '<br/>' + this.client.zip + ' ' + this.client.city
     }
 
-    constructor(num:string, client:Client, taxrate:number = 0){
+    constructor(num:string, client:Client, taxrate:number = 0,notify:Function){
         this.number = num;
         this.client = client;
         this.taxrate = taxrate;
         this.positions = [];
+        this.notify = notify;
         this.color = `hsl(${Math.random()*360}deg 100% 50%)`;
         this.date = dayjs().format('DD.MM.YYYY');
     }
@@ -61,7 +62,9 @@ class Invoice{
     }
 
     save(){
-        window.electron.ipcRenderer.send('files:save', {path:`/invoices/R_${this.number}.json`, content:this.serialize});
+      window.electron.saveFile({path:`/invoices/R_${this.number}.json`, content:this.serialize}).then( (msg:any) => {
+        this.notify(msg.type, msg.type =='Error' ? msg.message : 'Saved invoice '+ this.number);
+      });
     }
 
     delete(){

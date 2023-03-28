@@ -43,7 +43,7 @@ app.whenReady().then(() => {
   ipcMain.handle('files:get', handleGetFile);
   ipcMain.handle('fonts:get', handleGetFonts);
   ipcMain.handle('fonts:upload', handleUploadFonts);
-  
+  ipcMain.handle('file:save',handleSaveFile);
 
   rendererWindow = createWindow();
 
@@ -79,26 +79,30 @@ ipcMain.on('clients:save',(event, data)=>{
   try {
     fs.writeFileSync(resourcesPath + '/clients.json', data, 'utf-8');
     console.log('saved clients');
+    rendererWindow.webContents.send('message', {type:'Neutral',message:'Saved clients.'})
   } catch(e) {
     console.log(e)
+    rendererWindow.webContents.send('message', {type:'Error',message:e})
   }
 });
 
-ipcMain.on('files:save',(event, data)=>{
+async function handleSaveFile(event,data) {
   try {
     fs.writeFileSync(resourcesPath + data.path, data.content, 'utf-8');
     console.log(`saved ${resourcesPath + data.path}`);
+    return {type:'Success', message:'Saved File.'};
   } catch(e) {
-    console.log(e)
+    return {type:'Error',message:e};
   }
-});
+}
 
 ipcMain.on('files:delete',(event, data)=>{
   try {
     fs.unlinkSync(resourcesPath + data.path);
     console.log(`deleted ${resourcesPath + data.path}`);
   } catch(e) {
-    console.log(e)
+    console.log(e);
+    rendererWindow.webContents.send('message', {type:'Error',message:e})
   }
 });
 
@@ -113,14 +117,17 @@ ipcMain.on('invoice:export',(event, invoice)=>{
         console.log(p);
         exp.export(`${p}/R_${invoice.number}.pdf`);
         console.log(`exported invoice ${invoice.number}`);
+        rendererWindow.webContents.send('message', {type:'Success',message:`exported invoice ${invoice.number}.`})
       } else {
         console.log("no directory selected");
+        rendererWindow.webContents.send('message', {type:'Neutral',message:"no directory selected."})
       }
       
     });
     
   } catch(e) {
     console.log(e)
+    rendererWindow.webContents.send('message', {type:'Error',message:e})
   }
 });
 
@@ -139,6 +146,7 @@ async function handleGetSettings() {
     return data;
   } catch (error) {
     console.log(error);
+    rendererWindow.webContents.send('message', {type:'Error',message:error})
   }
 }
 
@@ -156,6 +164,7 @@ async function handleGetFonts() {
     return JSON.stringify(fts);
   } catch (error) {
     console.log(error);
+    rendererWindow.webContents.send('message', {type:'Error',message:error})
   }
 }
 

@@ -2,7 +2,6 @@
 
 - warnung wenn layout nicht komplett vor export, export deaktivieren?
 
-- font reload im rendere wenn hochgeladen
 - font select custom select field?
 - warnung wenn nicht verbunden mit internet bei figma file load
 
@@ -12,10 +11,6 @@
 - logo
 
 - communication with user through popups (saved, deleted, loaded etc)
-
-new Lay-out:
-- settings and help in top left corner
-- switch toggle between clients and invoices (move page left right)
 
 - pdf creation: 
   - rotate
