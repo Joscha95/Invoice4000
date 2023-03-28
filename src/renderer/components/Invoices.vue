@@ -56,8 +56,9 @@ section{
   line-height: 2.5em;
   padding: 0 1em;
   box-sizing: border-box;
-  background-color: rgb(0, 255, 110);
+  background-color: var(--green-sum);
   border-radius: 1.5em;
+  font-family: diatype;
   margin: var(--site-padding) 0;
 }
 

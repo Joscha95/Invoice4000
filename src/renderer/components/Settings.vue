@@ -76,8 +76,10 @@ export default {
         }
     },
     methods:{
-        uploadFont(){
-            window.electron.uploadFonts();
+        async uploadFont(){
+            const res = await window.electron.uploadFonts();
+            console.log(res);
+            store.refreshFonts();
         },
 
         save(){

@@ -161,28 +161,30 @@ async function handleGetFonts() {
 
 async function handleUploadFonts() {
   try {
-    dialog.showOpenDialog({
+    const { canceled, filePaths } = await dialog.showOpenDialog({
       properties: ['openFile', 'multiSelections'],
       filters: [
         { name: "Fonts", extensions: ["ttf", "otf"] },
       ] 
-    }).then(response => {
-      if (!response.canceled) {
-        // handle fully qualified file name
-        console.log(response.filePaths[0]);
-        response.filePaths.forEach(file => {
-          const name = path.basename(file);
-          fs.copyFile(file, resourcesPath + '/fonts/'+name, (err) => {
-            if (err) throw err;
-            console.log('copied: ' + name);
-          });
-        });
-      } else {
-        console.log("no file selected");
-      }
     })
+    if (!canceled) {
+      // handle fully qualified file name
+      console.log(filePaths[0]);
+      filePaths.forEach(file => {
+        const name = path.basename(file);
+        fs.copyFile(file, resourcesPath + '/fonts/'+name, (err) => {
+          if (err) throw err;
+          console.log('copied: ' + name);
+        });
+      });
+      return `${filePaths.length} font${filePaths.length==1 ? '':'s'} uploaded.`
+    } else {
+      console.log("no file selected.");
+      return "no file selected.";
+    }
   } catch (error) {
     console.log(error);
+    return error;
   }
 }
 

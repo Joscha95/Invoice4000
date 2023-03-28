@@ -52,12 +52,15 @@
 <style scoped>
 .client_row{
   padding: .5em 0 .4em 0;
-  border-bottom: .5px solid black;
+  border-bottom: var(--border);
   box-sizing: border-box;
   clear: both;
 }
 .client_row_info{
   display: none;
+}
+.client_row.open{
+  border: 0;
 }
 .client_row.open .client_row_info{
   display: grid;

@@ -39,7 +39,7 @@ import store from '../../store'
 }
 
 .invoice_prev{
-  font-family: receipt;
+  font-family: diatype;
   background-color: white;
   font-size: var(--fs1);
   padding: .7em .8em;

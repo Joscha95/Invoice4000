@@ -117,7 +117,8 @@ export default {
     --lightgreen:rgb(213, 235, 213) ;
     --anthrazite: rgb(40, 40, 40);
     --text-darkbg:rgb(250, 250, 250);
-    --border: .5px solid black;
+    --green-sum: rgb(0, 255, 110);
+    --border: 1px solid black;
 
     --fs0: .9rem;
     --fs1: calc(var(--fs0)*.9);
