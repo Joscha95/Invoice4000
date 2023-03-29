@@ -2,7 +2,6 @@ import {app, BrowserWindow, dialog, ipcMain, session, globalShortcut} from 'elec
 import {join} from 'path';
 
 import PDFExporter from './classes/PDFExporter';
-import { file } from 'pdfkit';
 const fs = require('fs');
 const path = require('path');
 let rendererWindow:BrowserWindow;
@@ -37,13 +36,13 @@ function createWindow ():BrowserWindow {
 }
 
 app.whenReady().then(() => {
-  ipcMain.handle('clients:get', handleGetClients);
-  ipcMain.handle('settings:get', handleGetSettings);
   ipcMain.handle('invoices:get', handleGetInvoices);
-  ipcMain.handle('files:get', handleGetFile);
+  ipcMain.handle('invoice:export', handleExportInvoice);
+  ipcMain.handle('file:get', handleGetFile);
   ipcMain.handle('fonts:get', handleGetFonts);
   ipcMain.handle('fonts:upload', handleUploadFonts);
   ipcMain.handle('file:save',handleSaveFile);
+  ipcMain.handle('file:delete',handleDeleteFile);
 
   rendererWindow = createWindow();
 
@@ -65,7 +64,6 @@ app.whenReady().then(() => {
   });
 });
 
-// rendererWindow.webContents.send('update-counter', 1)
 
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit()
@@ -74,17 +72,6 @@ app.on('window-all-closed', function () {
 ipcMain.on('message', (event, message) => {
   console.log(message);
 })
-
-ipcMain.on('clients:save',(event, data)=>{
-  try {
-    fs.writeFileSync(resourcesPath + '/clients.json', data, 'utf-8');
-    console.log('saved clients');
-    rendererWindow.webContents.send('message', {type:'Neutral',message:'Saved clients.'})
-  } catch(e) {
-    console.log(e)
-    rendererWindow.webContents.send('message', {type:'Error',message:e})
-  }
-});
 
 async function handleSaveFile(event,data) {
   try {
@@ -96,57 +83,23 @@ async function handleSaveFile(event,data) {
   }
 }
 
-ipcMain.on('files:delete',(event, data)=>{
+async function handleDeleteFile(event, data){
   try {
     fs.unlinkSync(resourcesPath + data.path);
     console.log(`deleted ${resourcesPath + data.path}`);
+    return {type:'Success', message:`deleted ${resourcesPath + data.path}`};
   } catch(e) {
     console.log(e);
-    rendererWindow.webContents.send('message', {type:'Error',message:e})
-  }
-});
-
-ipcMain.on('invoice:export',(event, invoice)=>{
-  try {
-    const exp = new PDFExporter(invoice,resourcesPath);
-      dialog.showOpenDialog({
-        properties: ['openDirectory']
-    }).then(response => {
-      if (!response.canceled) {
-        const p = response.filePaths[0];
-        console.log(p);
-        exp.export(`${p}/R_${invoice.number}.pdf`);
-        console.log(`exported invoice ${invoice.number}`);
-        rendererWindow.webContents.send('message', {type:'Success',message:`exported invoice ${invoice.number}.`})
-      } else {
-        console.log("no directory selected");
-        rendererWindow.webContents.send('message', {type:'Neutral',message:"no directory selected."})
-      }
-      
-    });
-    
-  } catch(e) {
-    console.log(e)
-    rendererWindow.webContents.send('message', {type:'Error',message:e})
-  }
-});
-
-async function handleGetClients() {
-  try {
-    const data = await fs.readFileSync(resourcesPath + '/clients.json', 'utf8');
-    return data;
-  } catch (error) {
-    console.log(error);
+    return {type:'Error',message:e};
   }
 }
 
-async function handleGetSettings() {
+async function handleGetFile(event,data) {
   try {
-    const data = await fs.readFileSync(resourcesPath + '/settings.json', 'utf8');
-    return data;
-  } catch (error) {
-    console.log(error);
-    rendererWindow.webContents.send('message', {type:'Error',message:error})
+    const contents = await fs.readFileSync(resourcesPath + data.path, 'utf8');
+    return {type:'Success',message:'Read file '+data.path,contents:contents};
+  } catch (e) {
+    return {type:'Error',message:e};
   }
 }
 
@@ -197,17 +150,6 @@ async function handleUploadFonts() {
   }
 }
 
-async function handleGetFile(event,file:string) {
-  try {
-    const data = await fs.readFileSync(file, 'utf8');
-    console.log(file);
-    
-    return data;
-  } catch (error) {
-    console.log(error);
-  }
-}
-
 async function handleGetInvoices() {
   try {
     const invs:any = [];
@@ -225,5 +167,26 @@ async function handleGetInvoices() {
     
   } catch (error) {
     console.log(error);
+  }
+}
+
+async function handleExportInvoice(event, invoice) {
+  try {
+    const exp = new PDFExporter(invoice,resourcesPath);
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+        properties: ['openDirectory']
+    });
+    if (!canceled) {
+      const p = filePaths[0];
+      exp.export(`${p}/R_${invoice.number}.pdf`);
+      console.log(`exported invoice ${invoice.number}`);
+      return {type:'Success',message:`exported invoice ${invoice.number}.`}
+    } else{
+      console.log("no directory selected");
+      return {type:'Neutral',message:"no directory selected."};
+    }
+  } catch(e) {
+    console.log(e);
+    return {type:'Error',message:e};
   }
 }

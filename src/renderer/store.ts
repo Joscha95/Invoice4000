@@ -29,7 +29,7 @@ class Storage {
         this.overlayMode = 'Hide';
         this.edit = false;
         this.showInvoice = false;
-        this.settings = new Settings();
+        this.settings = new Settings((_type:messageType,message:string) =>{this.notify(_type,message)});
     }
     
     setActiveInvoice(inv:Invoice){
@@ -56,6 +56,7 @@ class Storage {
 
     setSettings(s:any){
         this.settings.load(s);
+        this.settings.notify = (_type:messageType,message:string) =>{this.notify(_type,message)};
     }
 
     setFonts(fts:string[]){
@@ -63,21 +64,24 @@ class Storage {
     }
 
     refreshFonts(){
-        window.electron.getFonts().then((res:string) => JSON.parse(res)).then((res:any) => {
-            this.setFonts(res);
-            this.notify('Neutral','fonts updated.')
-          })
+      window.electron.getFonts().then((res:string) => JSON.parse(res)).then((res:any) => {
+          this.setFonts(res);
+          this.notify('Neutral','fonts updated.')
+        })
     }
 
-    deleteActiveInvoice(){
-      this.activeInvoice?.delete();
-      this.activeInvoice = undefined;
-      this.updateInvoices();
+    async deleteActiveInvoice(){
+      const res = await this.activeInvoice?.delete();
+      if(res){
+        this.activeInvoice = undefined;
+        this.showInvoice = false;
+        this.updateInvoices();
+      }
     }
 
     updateInvoices(){
       this.invoices = this.invoices.filter((i:Invoice) => !i.deleted);
-      this.clients.forEach(c => c.invoices = this.invoices.filter( i => i.client.id == c.id))
+      this.clients.forEach(c => c.invoices = this.invoices.filter( i => i.client.id == c.id));
     }
 
     newInvoice(client:Client){
@@ -102,7 +106,12 @@ class Storage {
     }
 
     saveClients(){
-      window.electron.ipcRenderer.send('clients:save', JSON.stringify(this.clients.map(c=> c.serialized())));
+      window.electron.saveFile({
+        path:'/clients.json', 
+        content:JSON.stringify(this.clients.map(c=> c.serialized()))
+      }).then( (msg:any) => {
+        this.notify(msg.type, msg.type =='Error' ? msg.message : 'Saved clients.');
+      });
     }
 
     notify(type:messageType,message:string){

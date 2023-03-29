@@ -67,13 +67,17 @@ class Invoice{
       });
     }
 
-    delete(){
-      window.electron.ipcRenderer.send('files:delete', {path:`/invoices/R_${this.number}.json`});
-      this.deleted = true;
+    async delete(){
+      const msg = await window.electron.deleteFile({path:`/invoices/R_${this.number}.json`});
+      this.notify(msg.type, msg.type =='Error' ? msg.message : 'Deleted invoice '+ this.number);
+      if(msg.type !='Error') this.deleted = true;
+      return this.deleted;
     }
 
     export(){
-        window.electron.ipcRenderer.send('invoice:export', {number:this.number, json:this.serialize});
+        window.electron.exportInvoice({number:this.number, json:this.serialize}).then( (msg:any) => {
+          this.notify(msg.type, msg.message);
+        });
     }
 
     load(obj:any){

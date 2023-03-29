@@ -42,7 +42,6 @@ class FigmaFile{
   updateLayouts(){
     this.invoice = this.layouts.find(l => l.name == "invoice_4000");
     this.quote = this.layouts.find(l => l.name == "quote_4000") ;
-    console.log(this.quote);
   }
 
   setFontMap(key:string,value:string){

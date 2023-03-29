@@ -1,7 +1,7 @@
 <template>
     <div class="invoice_editor">
       <div id="invoice_bg" @click="store.showInvoice = false;edit=false;"></div>
-      <div class="ie_form">
+      <div class="ie_form" v-if="store.activeInvoice">
         <button-wrapper>
           <div class="edit button red" v-if="edit" @click="store.deleteActiveInvoice();edit=false">delete</div>
           <div class="edit button black" @click="store.activeInvoice.export()">export</div>
@@ -31,7 +31,6 @@
                       <th>Leistung</th>
                       <th>Gesamtpreis</th>
                   </tr>
-                  
               </thead>
               <tbody>
                   <tr v-for="(position, i) in store.activeInvoice.positions" :key="i">

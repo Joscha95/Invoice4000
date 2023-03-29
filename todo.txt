@@ -10,8 +10,6 @@
 
 - logo
 
-- communication with user through popups (saved, deleted, loaded etc)
-
 - pdf creation: 
   - rotate
   - line height

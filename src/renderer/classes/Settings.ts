@@ -7,17 +7,23 @@ class Settings {
   figmaFile: FigmaFile
   taxrate: number
   invoicenumber:string
+  notify:Function
 
-  constructor(d?:any){
+  constructor(notify:Function, d?:any){
     this.figmaFileId = d?.figmaFileId || '' ;
     this.figmaAccessToken = d?.figmaAccessToken || '';
     this.taxrate = d?.taxrate || 0;
     this.invoicenumber = d?.invoicenumber;
     this.figmaFile = new FigmaFile();
+    this.notify = () => {};
   }
 
   save(){
-    window.electron.ipcRenderer.send('files:save', {path:`/settings.json`,content:JSON.stringify(this)});
+    window.electron.saveFile({path:`/settings.json`,content:JSON.stringify(this)})
+    .then((msg:any) => {
+      this.notify(msg.type, msg.type =='Error' ? msg.message : 'Updated settings.');
+      console.log(true);
+    });
   }
 
   load(d:any){

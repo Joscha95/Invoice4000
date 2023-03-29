@@ -70,7 +70,9 @@ export default {
     }
   },
   mounted(){
-    window.electron.getClients().then(res => JSON.parse(res)).then(res => {
+    window.electron.getFile({path:'/clients.json'})
+    .then(res => JSON.parse(res.contents))
+    .then(res => {
       store.loadClients(res);
       window.electron.getInvoices().then(res => {
         store.loadInvoices(res);
@@ -86,7 +88,9 @@ export default {
       console.log(message);
     });
 
-    window.electron.getSettings().then(res => JSON.parse(res)).then(res => {
+    window.electron.getFile({path:'/settings.json'})
+    .then(res => JSON.parse(res.contents))
+    .then(res => {
       store.setSettings(res);
     })
     
@@ -199,8 +203,6 @@ export default {
   main{
     margin-top: var(--padding-top);
   }
-
-
 
   .button{
     padding: .4em .8em;
