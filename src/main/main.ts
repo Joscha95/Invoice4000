@@ -1,7 +1,7 @@
 import {app, BrowserWindow, dialog, ipcMain, session, globalShortcut} from 'electron';
 import {join} from 'path';
-
 import PDFExporter from './classes/PDFExporter';
+
 const fs = require('fs');
 const path = require('path');
 let rendererWindow:BrowserWindow;
@@ -68,10 +68,6 @@ app.whenReady().then(() => {
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit()
 });
-
-ipcMain.on('message', (event, message) => {
-  console.log(message);
-})
 
 async function handleSaveFile(event,data) {
   try {
