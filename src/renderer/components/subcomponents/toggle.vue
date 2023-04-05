@@ -1,6 +1,6 @@
 <template>
 	<label class="toggle" :title="bool ? tooltipOn : tooltipOff">
-		<input type="checkbox" :checked="bool" @change="$emit('update:modelValue', $event.target.checked)">
+		<input type="checkbox" :checked="bool" @change="changeValue">
 		<span class="slider round">
 			<span :class="bool ? '':'active'">
 				<span>{{ off }}</span>
@@ -14,7 +14,13 @@
 
 <script>
 export default {
-	props: ['bool','on','off','tooltipOn','tooltipOff']
+	props: ['bool','on','off','tooltipOn','tooltipOff'],
+  methods:{
+    changeValue(e){
+      console.log(e.target.checked);
+      this.$emit('update:modelValue', e.target.checked);
+    }
+  }
 };
 </script>
 <style scoped>

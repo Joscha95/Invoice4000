@@ -19,13 +19,13 @@ class Storage {
     activeClient?: Client
     activeInvoice?: Invoice
     showInvoice: boolean
-    mode: Mode
+    mode: boolean
     overlayMode: OverlayMode
     edit: boolean
     settings: Settings
 
     constructor(){
-      this.mode = 'Clients';
+      this.mode = false;
       this.overlayMode = 'Hide';
       this.edit = false;
       this.showInvoice = false;

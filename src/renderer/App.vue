@@ -15,7 +15,7 @@ import sideOverlay from './components/subcomponents/side-overlay.vue'
   <header>
     <section id="header_bar">
       <div>
-        <toggle v-model="isClients" :bool="isClients" :on="'Clients'" :off="'Invoices'"/>
+        <toggle v-model="store.mode" :bool="store.mode" :on="'Clients'" :off="'Invoices'"/>
       </div>
       <div @click="store.overlayMode = store.overlayMode=='Settings' ? 'Hide': 'Settings'">Settings</div>
       <div @click="store.overlayMode = store.overlayMode=='Help' ? 'Hide': 'Help'">?</div>
@@ -35,7 +35,7 @@ import sideOverlay from './components/subcomponents/side-overlay.vue'
       </side-overlay>
     </Transition>
 
-    <component :is="store.mode"/>
+    <component :is="store.mode ? 'Clients' : 'Invoices'"/>
 
     <Transition name="invoice-fade">
       <Invoice v-if="store.showInvoice" />
@@ -51,8 +51,8 @@ export default {
     return {
       store,
       isClients:true,
+      hihi:false,
       S:false,
-      
     }
   },
   components:{
@@ -65,9 +65,11 @@ export default {
     Messages
   },
   watch:{
-    isClients(){
-      this.store.mode = this.isClients ? 'clients' : 'invoices'
-    }
+    // isClients(){
+    //   console.log(this.isClients,'app');
+      
+    //   this.store.mode = this.isClients ? 'Clients' : 'Invoices'
+    // }
   },
   mounted(){
     store.init();
