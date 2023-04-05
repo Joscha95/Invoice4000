@@ -110,7 +110,7 @@ async function handleGetFonts(): Promise<Message> {
       
       fts.push(f);
     });
-    return {type:'Success',text:'Read Loaded Fonts.',contents:fts};
+    return {type:'Success',text:'Loaded Fonts.',contents:fts};
   } catch (e) {
     console.log(e);
     return createErrorMessage(e);

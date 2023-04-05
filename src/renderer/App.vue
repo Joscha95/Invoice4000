@@ -15,7 +15,7 @@ import sideOverlay from './components/subcomponents/side-overlay.vue'
   <header>
     <section id="header_bar">
       <div>
-        <toggle v-model="store.mode" :bool="store.mode" :on="'Clients'" :off="'Invoices'"/>
+        <toggle v-model="store.modeBool" :bool="store.modeBool" :on="'Invoices'" :off="'Clients'"/>
       </div>
       <div @click="store.overlayMode = store.overlayMode=='Settings' ? 'Hide': 'Settings'">Settings</div>
       <div @click="store.overlayMode = store.overlayMode=='Help' ? 'Hide': 'Help'">?</div>
@@ -35,7 +35,7 @@ import sideOverlay from './components/subcomponents/side-overlay.vue'
       </side-overlay>
     </Transition>
 
-    <component :is="store.mode ? 'Clients' : 'Invoices'"/>
+    <component :is="store.mode"/>
 
     <Transition name="invoice-fade">
       <Invoice v-if="store.showInvoice" />

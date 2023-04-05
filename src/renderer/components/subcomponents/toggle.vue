@@ -17,7 +17,6 @@ export default {
 	props: ['bool','on','off','tooltipOn','tooltipOff'],
   methods:{
     changeValue(e){
-      console.log(e.target.checked);
       this.$emit('update:modelValue', e.target.checked);
     }
   }

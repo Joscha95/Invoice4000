@@ -1,5 +1,6 @@
 <template>
 <div class="invoices">
+    <div v-if="!hideAdd" @click="store.newInvoice(client)" class="invoice_prev invoice_new" style="--bg-col:white;"> <span>+</span> </div>
     <div :class="['invoice_prev', store.edit && store.activeInvoice?.number != invoice.number ? 'inactive' : '']" 
         @dblclick="store.setActiveInvoice(invoice)" 
         v-for="invoice in invoices" 
@@ -7,7 +8,6 @@
         :style="`--bg-col:${invoice.color};`">
         {{ invoice.number }}: {{ invoice.sum.toLocaleString('de-DE') }}E
     </div>
-    <div v-if="!hideAdd" @click="store.newInvoice(client)" class="invoice_prev invoice_new" style="--bg-col:white;"> <span>+</span> </div>
 </div>
     
 </template>
@@ -47,9 +47,6 @@ import store from '../../store'
   cursor: pointer;
   box-shadow: 0 0 8px rgba(0,0,0,.12);
   border-radius: var(--border-radius-small);
-}
-
-.invoice_number{
 }
 
 .invoice_new{

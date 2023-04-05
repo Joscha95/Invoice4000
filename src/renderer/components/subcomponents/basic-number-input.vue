@@ -1,5 +1,5 @@
 <template>
-    <div :class="{inline:inline}">
+    <div :class="{inline:inline}" :style="'text-align:'+align">
         <small v-if="label">{{label}}</small>
         <div v-if="!edit"> {{ modelValue }}</div>
         <input ref="ele" :class="{big:big,inline:inline}" v-else @input="updateValue" :value="modelValue"/>
@@ -14,7 +14,8 @@ export default {
         edit: Boolean,
         label: String,
         big: Boolean,
-        inline:Boolean
+        inline:Boolean,
+        align: String
     },
     mounted(){
       this.setWidth()

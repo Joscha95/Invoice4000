@@ -66,9 +66,6 @@
       invoicesGrid,
       basicTextarea,
       ButtonWrapper
-    },
-    methods: {
-      
     }
   }
 </script>

@@ -36,7 +36,7 @@
                   <tr v-for="(position, i) in store.activeInvoice.positions" :key="i">
                       <td>{{ ('0'+(i+1)).slice(-3) }}</td>
                       <td><basic-textarea v-model="position.text" :edit="edit"/></td>
-                      <td v-if="edit"> <basic-number-input v-model="position.sum" :edit="edit"/> </td>
+                      <td v-if="edit"> <basic-number-input v-model="position.sum" :edit="edit" :align="'right'" :inline="true"/> </td>
                       <td v-else > {{ position.sum.toLocaleString('de-DE') }}E </td>
                   </tr>
               </tbody>
@@ -64,7 +64,7 @@ export default {
     data() {
         return {
             store,
-            clientId:'',
+            clientId:store.activeInvoice.client.id,
             edit:false
         }
     },

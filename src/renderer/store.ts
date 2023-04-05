@@ -19,30 +19,37 @@ class Storage {
     activeClient?: Client
     activeInvoice?: Invoice
     showInvoice: boolean
-    mode: boolean
+    modeBool: boolean
     overlayMode: OverlayMode
     edit: boolean
     settings: Settings
 
     constructor(){
-      this.mode = false;
+      this.modeBool = false;
       this.overlayMode = 'Hide';
       this.edit = false;
       this.showInvoice = false;
       this.settings = new Settings((m:Message) =>{this.notify(m)});
     }
 
+    get mode():Mode{
+      return this.modeBool ?  'Invoices' :'Clients'
+    }
+
     init(){
       window.electron.getFile({path:'/clients.json'})
       .then(res => JSON.parse(res.contents))
-      .then(_clients => {
-        this.loadClients(_clients);
+      .then(res => {
+        if(this.notifyError(res)) return;
+        this.loadClients(res);
         window.electron.getInvoices().then(res => {
+          if(this.notifyError(res)) return;
           this.loadInvoices(res.contents);
         });
       });
 
       window.electron.getFonts().then(res => {
+        if(this.notifyError(res)) return;
         this.setFonts(res.contents);
       })
 
@@ -53,6 +60,7 @@ class Storage {
       window.electron.getFile({path:'/settings.json'})
       .then(res => JSON.parse(res.contents))
       .then(res => {
+        if(this.notifyError(res)) return;
         this.setSettings(res);
       })
     }
@@ -64,9 +72,7 @@ class Storage {
 
     loadClients(_clients:any[] ){
         _clients.forEach( (_c) => {
-            const nc = new Client();
-            nc.load(_c)
-            this.clients.push(nc);
+            this.clients.push(Object.assign(new Client(), _c));
         })
     }
 
@@ -91,7 +97,7 @@ class Storage {
     refreshFonts(){
       window.electron.getFonts().then((m:Message) => {
           this.setFonts(m.contents);
-          this.notify(m);
+          //this.notify(m);
         })
     }
 
@@ -106,13 +112,13 @@ class Storage {
 
     updateInvoices(){
       this.invoices = this.invoices.filter((i:Invoice) => !i.deleted);
-      this.clients.forEach(c => c.invoices = this.invoices.filter( i => i.client.id == c.id));
+      this.clients.forEach(c => c.invoices = this.invoices.filter( i => i.client.id == c.id).reverse());
     }
 
     newInvoice(client:Client){
       const num = this.settings.getNextInvoiceNumber();
       const inv = new Invoice(
-        this.settings.invoicenumber.toString(), 
+        num, 
         client || this.clients[0],
         this.settings.taxrate,
         (m:Message) =>{this.notify(m)});
@@ -144,6 +150,11 @@ class Storage {
       this.notifications.unshift(
         new Notification(m, ()=>{this.deleteMessage(id)},id)
       );
+    }
+
+    notifyError(m:Message):boolean{
+      if(m.type == 'Error') this.notify(m);
+      return m.type == 'Error';
     }
 
     deleteMessage(id:string){

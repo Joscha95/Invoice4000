@@ -12,7 +12,7 @@
           <div class="client_head_icount"> {{ client.invoices.length }} </div>
         </div>
         <div class="client_row_info">
-          <VClient :client="client" @delete="deleteClient"/>
+          <VClient v-if="client.expanded" :client="client" @delete="deleteClient"/>
         </div>
       </div>
 </template>
@@ -42,6 +42,8 @@
       },
       newClient(){
         const newNum = this.store.clients.length > 0 ? ("00" + (parseInt(this.store.clients[this.store.clients.length-1].number)+1)).slice(-3) : "001";
+        console.log();
+        
         this.store.clients.push(new Client(newNum));
         this.store.activeClient = this.store.clients[this.store.clients.length-1];
         this.store.saveClients();

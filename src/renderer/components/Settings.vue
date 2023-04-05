@@ -78,8 +78,10 @@ export default {
     methods:{
         async uploadFont(){
             const res = await window.electron.uploadFonts();
-            console.log(res);
-            store.refreshFonts();
+            if(res.type=='Success'){
+              store.refreshFonts();
+            }
+            store.notify(res);
         },
 
         save(){
@@ -109,6 +111,11 @@ export default {
             .then(result => {
                 this.loading = false;
                 console.log(result);
+                if(result.err) {
+                  store.notify({type:'Error',text:'Figma: '+result.err});
+                  return;
+                }
+
                 this.store.settings.figmaFile.import(result);
                 this.store.settings.save();
             })

@@ -9,5 +9,6 @@
     "name": ""
   },
   "taxrate": 19,
-  "invoicenumber": "23000"
+  "invoicenumber": "0",
+  "lastSavedInvoiceYear":"23"
 }
