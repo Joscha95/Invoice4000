@@ -7,9 +7,9 @@ class Settings {
   figmaFile: FigmaFile
   taxrate: number
   invoicenumber:string
-  notify:Function
+  notify:(m:Message)=>void
 
-  constructor(notify:Function, d?:any){
+  constructor(d?:any){
     this.figmaFileId = d?.figmaFileId || '' ;
     this.figmaAccessToken = d?.figmaAccessToken || '';
     this.taxrate = d?.taxrate || 0;
@@ -21,8 +21,7 @@ class Settings {
   save(){
     window.electron.saveFile({path:`/settings.json`,content:JSON.stringify(this)})
     .then((msg:any) => {
-      this.notify(msg.type, msg.type =='Error' ? msg.message : 'Updated settings.');
-      console.log(true);
+      this.notify({type:msg.type, text:msg.type =='Error' ? msg.text : 'Updated settings.'});
     });
   }
 

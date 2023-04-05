@@ -10,5 +10,6 @@
     "allowJs": true,
     "noImplicitAny": false,
   },
-  "exclude": ["static"]
+  "exclude": ["static"],
+  "include":["../shared/globals.d.ts","*.ts","./classes/*.ts"]
 }

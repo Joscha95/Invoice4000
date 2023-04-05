@@ -2,7 +2,7 @@
 import { reactive } from 'vue'
 import Client from './classes/Client'
 import Invoice from './classes/Invoice'
-import {default as Message, messageType} from './classes/Message'
+import Notification from './classes/Notification'
 import Layout from './classes/Layout'
 import Settings from './classes/Settings'
 import {makeid} from './classes/Helpers'
@@ -15,7 +15,7 @@ class Storage {
     protected invoices: Invoice[] = []
     protected layouts: Layout[] = []
     protected fonts: string[] = []
-    protected messages: Message[] = []
+    protected notifications: Notification[] = []
     activeClient?: Client
     activeInvoice?: Invoice
     showInvoice: boolean
@@ -25,11 +25,36 @@ class Storage {
     settings: Settings
 
     constructor(){
-        this.mode = 'Clients';
-        this.overlayMode = 'Hide';
-        this.edit = false;
-        this.showInvoice = false;
-        this.settings = new Settings((_type:messageType,message:string) =>{this.notify(_type,message)});
+      this.mode = 'Clients';
+      this.overlayMode = 'Hide';
+      this.edit = false;
+      this.showInvoice = false;
+      this.settings = new Settings((m:Message) =>{this.notify(m)});
+    }
+
+    init(){
+      window.electron.getFile({path:'/clients.json'})
+      .then(res => JSON.parse(res.contents))
+      .then(_clients => {
+        this.loadClients(_clients);
+        window.electron.getInvoices().then(res => {
+          this.loadInvoices(res.contents);
+        });
+      });
+
+      window.electron.getFonts().then(res => {
+        this.setFonts(res.contents);
+      })
+
+      window.electron.onMessage((_event:any,message:Message)=>{
+        this.notify(message);
+      });
+
+      window.electron.getFile({path:'/settings.json'})
+      .then(res => JSON.parse(res.contents))
+      .then(res => {
+        this.setSettings(res);
+      })
     }
     
     setActiveInvoice(inv:Invoice){
@@ -47,7 +72,7 @@ class Storage {
 
     loadInvoices(_invoices:any[]){
         _invoices.forEach( (_i) => {
-            const ni = new Invoice(_i.number,this.getClient(_i.client), undefined,(_type:messageType,message:string) =>{this.notify(_type,message)}); 
+            const ni = new Invoice(_i.number,this.getClient(_i.client), undefined,(m:Message) =>{this.notify(m)}); 
             ni.load(_i);
             this.invoices.push(ni);
         });
@@ -56,7 +81,7 @@ class Storage {
 
     setSettings(s:any){
         this.settings.load(s);
-        this.settings.notify = (_type:messageType,message:string) =>{this.notify(_type,message)};
+        this.settings.notify = (m:Message) =>{this.notify(m)};
     }
 
     setFonts(fts:string[]){
@@ -64,9 +89,9 @@ class Storage {
     }
 
     refreshFonts(){
-      window.electron.getFonts().then((res:string) => JSON.parse(res)).then((res:any) => {
-          this.setFonts(res);
-          this.notify('Neutral','fonts updated.')
+      window.electron.getFonts().then((m:Message) => {
+          this.setFonts(m.contents);
+          this.notify(m);
         })
     }
 
@@ -90,7 +115,7 @@ class Storage {
         this.settings.invoicenumber.toString(), 
         client || this.clients[0],
         this.settings.taxrate,
-        (_type:messageType,message:string) =>{this.notify(_type,message)});
+        (m:Message) =>{this.notify(m)});
       this.invoices.push(inv);
       inv.save();
       this.activeInvoice = inv;
@@ -109,20 +134,20 @@ class Storage {
       window.electron.saveFile({
         path:'/clients.json', 
         content:JSON.stringify(this.clients.map(c=> c.serialized()))
-      }).then( (msg:any) => {
-        this.notify(msg.type, msg.type =='Error' ? msg.message : 'Saved clients.');
+      }).then( (msg:Message) => {
+        this.notify({type:msg.type, text: msg.type =='Error' ? msg.text : 'Saved clients.'});
       });
     }
 
-    notify(type:messageType,message:string){
+    notify(m:Message){
       const id = makeid(5);
-      this.messages.unshift(
-        new Message(message,()=>{this.deleteMessage(id)},type,id)
+      this.notifications.unshift(
+        new Notification(m, ()=>{this.deleteMessage(id)},id)
       );
     }
 
     deleteMessage(id:string){
-      this.messages = this.messages.filter((_m:Message) => {return _m.id != id});
+      this.notifications = this.notifications.filter((_m:Notification) => {return _m.id != id});
     }
 }
 

@@ -69,37 +69,37 @@ app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit()
 });
 
-async function handleSaveFile(event,data) {
+async function handleSaveFile(event,data): Promise<Message> {
   try {
     fs.writeFileSync(resourcesPath + data.path, data.content, 'utf-8');
     console.log(`saved ${resourcesPath + data.path}`);
-    return {type:'Success', message:'Saved File.'};
+    return {type:'Success', text:'Saved File.'};
   } catch(e) {
-    return {type:'Error',message:e};
+    return createErrorMessage(e)
   }
 }
 
-async function handleDeleteFile(event, data){
+async function handleDeleteFile(event, data): Promise<Message>{
   try {
     fs.unlinkSync(resourcesPath + data.path);
     console.log(`deleted ${resourcesPath + data.path}`);
-    return {type:'Success', message:`deleted ${resourcesPath + data.path}`};
+    return {type:'Success', text:`deleted ${resourcesPath + data.path}`};
   } catch(e) {
     console.log(e);
-    return {type:'Error',message:e};
+    return createErrorMessage(e)
   }
 }
 
-async function handleGetFile(event,data) {
+async function handleGetFile(event,data): Promise<Message> {
   try {
     const contents = await fs.readFileSync(resourcesPath + data.path, 'utf8');
-    return {type:'Success',message:'Read file '+data.path,contents:contents};
+    return {type:'Success',text:'Read file '+data.path,contents:contents};
   } catch (e) {
-    return {type:'Error',message:e};
+    return createErrorMessage(e)
   }
 }
 
-async function handleGetFonts() {
+async function handleGetFonts(): Promise<Message> {
   try {
     const fts:string[] = [];
 
@@ -110,14 +110,14 @@ async function handleGetFonts() {
       
       fts.push(f);
     });
-    return JSON.stringify(fts);
-  } catch (error) {
-    console.log(error);
-    rendererWindow.webContents.send('message', {type:'Error',message:error})
+    return {type:'Success',text:'Read Loaded Fonts.',contents:fts};
+  } catch (e) {
+    console.log(e);
+    return createErrorMessage(e);
   }
 }
 
-async function handleUploadFonts() {
+async function handleUploadFonts(): Promise<Message> {
   try {
     const { canceled, filePaths } = await dialog.showOpenDialog({
       properties: ['openFile', 'multiSelections'],
@@ -135,18 +135,18 @@ async function handleUploadFonts() {
           console.log('copied: ' + name);
         });
       });
-      return `${filePaths.length} font${filePaths.length==1 ? '':'s'} uploaded.`
+      return {type:'Success',text:`${filePaths.length} font${filePaths.length==1 ? '':'s'} uploaded.`}
     } else {
       console.log("no file selected.");
-      return "no file selected.";
+      return {type:'Neutral',text:"no file selected."}
     }
-  } catch (error) {
-    console.log(error);
-    return error;
+  } catch (e) {
+    console.log(e);
+    return createErrorMessage(e)
   }
 }
 
-async function handleGetInvoices() {
+async function handleGetInvoices():Promise<Message> {
   try {
     const invs:any = [];
 
@@ -159,14 +159,17 @@ async function handleGetInvoices() {
       invs.push(r);
     });
 
-    return invs;
+
+    return {type:'Success',text:`Loaded Invoices.`,contents:invs}
     
-  } catch (error) {
-    console.log(error);
+  } catch (e) {
+    console.log(e);
+    
+    return createErrorMessage(e)
   }
 }
 
-async function handleExportInvoice(event, invoice) {
+async function handleExportInvoice(event, invoice):Promise<Message> {
   try {
     const exp = new PDFExporter(invoice,resourcesPath);
     const { canceled, filePaths } = await dialog.showOpenDialog({
@@ -176,13 +179,17 @@ async function handleExportInvoice(event, invoice) {
       const p = filePaths[0];
       exp.export(`${p}/R_${invoice.number}.pdf`);
       console.log(`exported invoice ${invoice.number}`);
-      return {type:'Success',message:`exported invoice ${invoice.number}.`}
+      return {type:'Success',text:`exported invoice ${invoice.number}.`}
     } else{
       console.log("no directory selected");
-      return {type:'Neutral',message:"no directory selected."};
+      return {type:'Neutral',text:"no directory selected."};
     }
   } catch(e) {
     console.log(e);
-    return {type:'Error',message:e};
+    return createErrorMessage(e)
   }
+}
+
+function createErrorMessage(e):Message{
+  return {type:'Error',text:JSON.stringify(e)}
 }

@@ -1,14 +1,14 @@
 <template>
   <ul>
   <transition-group name="messages-fade">
-    <li v-for="(message,i) in store.messages" 
-    :key="message.id" 
-    :style="`background-color:var(--${message.type}-col); top: ${Math.min(i/3,1)*3}em;z-index:${5-i}`">
+    <li v-for="(notification,i) in store.notifications" 
+    :key="notification.id" 
+    :style="`background-color:var(--${notification.message.type}-col); top: ${Math.min(i/3,1)*3}em;z-index:${5-i}`">
       <div class="inner">
-        <p>{{ message.message }}</p>
-        <span @click="message.kill()">x</span>
+        <p>{{ notification.message.text }}</p>
+        <span @click="notification.kill()">x</span>
       </div>
-      <div class="bg" v-if="message.life" :style="`--duration:${message.life}s`"></div>
+      <div class="bg" v-if="notification.life" :style="`--duration:${notification.life}s`"></div>
     </li>
   </transition-group>
   </ul>

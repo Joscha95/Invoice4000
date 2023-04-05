@@ -70,31 +70,7 @@ export default {
     }
   },
   mounted(){
-    window.electron.getFile({path:'/clients.json'})
-    .then(res => JSON.parse(res.contents))
-    .then(res => {
-      store.loadClients(res);
-      window.electron.getInvoices().then(res => {
-        store.loadInvoices(res);
-      });
-    });
-
-    window.electron.getFonts().then(res => JSON.parse(res)).then(res => {
-      store.setFonts(res);
-    })
-
-    window.electron.onMessage((_event,message)=>{
-      store.notify(message.type,message.message);
-      console.log(message);
-    });
-
-    window.electron.getFile({path:'/settings.json'})
-    .then(res => JSON.parse(res.contents))
-    .then(res => {
-      store.setSettings(res);
-    })
-    
-
+    store.init();
     window.onkeydown = (event)=>{
       if((event.key == 's' && (event.ctrlKey||event.metaKey)|| (event.which == 19))){
         switch (this.mode) {
@@ -142,7 +118,7 @@ export default {
     --fs1: calc(var(--fs0)*.9);
     --fs2: calc(var(--fs0)*.7);
 
-    --border-radius-small: 5px;
+    --border-radius-small: 0;
 
     --bgBlur: 5px;
 

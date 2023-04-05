@@ -15,7 +15,7 @@ class Invoice{
     positions: Position[];
     client: Client;
     deleted = false;
-    notify:Function;
+    notify:(m:Message)=>void;
 
     number: string;
     date: string;
@@ -39,7 +39,7 @@ class Invoice{
         return this.client.name + '<br/>' + this.client.street + '<br/>' + this.client.zip + ' ' + this.client.city
     }
 
-    constructor(num:string, client:Client, taxrate:number = 0,notify:Function){
+    constructor(num:string, client:Client, taxrate:number = 0,notify:(m:Message)=>void){
         this.number = num;
         this.client = client;
         this.taxrate = taxrate;
@@ -63,20 +63,25 @@ class Invoice{
 
     save(){
       window.electron.saveFile({path:`/invoices/R_${this.number}.json`, content:this.serialize}).then( (msg:any) => {
-        this.notify(msg.type, msg.type =='Error' ? msg.message : 'Saved invoice '+ this.number);
+        console.log(msg);
+        msg.text = msg.type =='Error' ? msg.text : 'Saved invoice '+ this.number;
+        console.log(msg);
+        this.notify(msg);
       });
     }
 
     async delete(){
       const msg = await window.electron.deleteFile({path:`/invoices/R_${this.number}.json`});
-      this.notify(msg.type, msg.type =='Error' ? msg.message : 'Deleted invoice '+ this.number);
+      msg.text = msg.type =='Error' ? msg.text : 'Deleted invoice '+ this.number;
+      this.notify(msg);
+      
       if(msg.type !='Error') this.deleted = true;
       return this.deleted;
     }
 
     export(){
         window.electron.exportInvoice({number:this.number, json:this.serialize}).then( (msg:any) => {
-          this.notify(msg.type, msg.message);
+          this.notify(msg);
         });
     }
 

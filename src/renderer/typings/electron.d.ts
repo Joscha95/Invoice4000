@@ -5,14 +5,14 @@ import * as Electron from 'electron';
  */
 export default interface ElectronApi {
   ipcRenderer: Electron.IpcRenderer,
-  getInvoices() : any,
-  exportInvoice() : void,
-  uploadFonts() : void,
-  getFonts() : Promise<string>,
-  getFile() : void,
-  saveFile(d:any) : Promise<any>,
-  deleteFile() : void,
-  onMessage() : void,
+  getInvoices() : Promise<Message>,
+  exportInvoice(d:any) : Promise<Message>,
+  uploadFonts() : Promise<Message>,
+  getFonts() : Promise<Message>,
+  getFile(d:any) : Promise<Message>,
+  saveFile(d:any) : Promise<Message>,
+  deleteFile(d:any) : Promise<Message>,
+  onMessage(f:Function) : void,
 }
 
 declare global {
