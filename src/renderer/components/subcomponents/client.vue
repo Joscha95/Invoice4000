@@ -22,9 +22,15 @@
         <basicInput v-model="client.city" :edit="edit"/>
         <basicInput v-model="client.zip" :edit="edit"/>       
       </div>
+
+      <div class="invoices" style="--area:quotes">
+        <small>quotes</small>
+        <invoices-grid :invoices="client.invoices.filter( i => i.quote)" :hideAdd="false" :client="client"></invoices-grid>
+      </div>
       
       <div class="invoices" style="--area:invoices">
-        <invoices-grid :invoices="client.invoices" :client="client"></invoices-grid>
+        <small>invoices</small>
+        <invoices-grid :invoices="client.invoices.filter( i => !i.quote)" :hideAdd="true" :client="client"></invoices-grid>
       </div>
 
       <div class="short" style="--area:short">
@@ -73,7 +79,7 @@
   .client_editor{
     position: relative;
     padding: var(--site-padding);
-    background-color: var(--middlegray);
+    /* background-color: var(--middlegray); */
     border-radius:var(--border-radius-small);
     width:100%;
     box-sizing: border-box;
@@ -82,12 +88,13 @@
   .ce_props{
     display: grid;
     grid-template-columns: repeat(4,1fr);
+    grid-gap:.3em;
     grid-template-rows: repeat(4,8em);
     grid-template-areas: 
     "number number name name"
     "adress adress short contact"
-    "invoices invoices quotes quotes"
-    "invoices invoices quotes quotes"
+    "quotes quotes invoices invoices"
+    "quotes quotes invoices invoices"
     ;
   }
 

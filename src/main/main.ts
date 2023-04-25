@@ -177,7 +177,7 @@ async function handleExportInvoice(event, invoice):Promise<Message> {
     });
     if (!canceled) {
       const p = filePaths[0];
-      exp.export(`${p}/R_${invoice.number}.pdf`);
+      exp.export(`${p}/${invoice.json.quote ? 'A_' : 'R_'}${invoice.number}.pdf`);
       console.log(`exported invoice ${invoice.number}`);
       return {type:'Success',text:`exported invoice ${invoice.number}.`}
     } else{

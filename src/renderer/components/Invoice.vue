@@ -3,6 +3,7 @@
       <div id="invoice_bg" @click="store.showInvoice = false;edit=false;"></div>
       <div class="ie_form" v-if="store.activeInvoice">
         <button-wrapper>
+          <div class="edit button black" v-if="store.activeInvoice.quote && edit" @click="store.activeInvoice.convertToInvoice()">convert to invoice</div>
           <div class="edit button red" v-if="edit" @click="store.deleteActiveInvoice();edit=false">delete</div>
           <div class="edit button black" @click="store.activeInvoice.export()">export</div>
           <div class="edit button black" @click="edit=!edit; if(!edit) store.activeInvoice.save()">{{edit ? "save" : "edit"}}</div>
@@ -19,7 +20,7 @@
               </div>
           </div>
           
-          <h1>Rechnung</h1>
+          <h1>{{store.activeInvoice.quote ? 'Angebot' : 'Rechnung'}}</h1>
 
           <div class="ie_body_header">
               <div>Nr. {{ store.activeInvoice.number }}</div> <div>Kundennr. {{ store.activeInvoice.client.number }}</div> <div>{{ store.activeInvoice.date }}</div>
@@ -53,11 +54,11 @@
 </template>
 
 <script>
-import Invoice from '../classes/Invoice';
 import store from '../store';
 import buttonWrapper from "./subcomponents/button-wrapper.vue";
 import basicInput from "./subcomponents/basic-input.vue";
 import basicTextarea from "./subcomponents/basic-textarea.vue";
+import toggle from "./subcomponents/toggle.vue";
 import basicNumberInput from "./subcomponents/basic-number-input.vue";
 
 export default {
@@ -72,7 +73,8 @@ export default {
       basicInput,
       basicTextarea,
       basicNumberInput,
-      buttonWrapper
+      buttonWrapper,
+      toggle
     },
     watch:{
         'store.activeInvoice'(newInvoice){

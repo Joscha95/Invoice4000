@@ -72,13 +72,19 @@ class Storage {
 
     loadClients(_clients:any[] ){
         _clients.forEach( (_c) => {
-            this.clients.push(Object.assign(new Client(), _c));
+          this.clients.push(Object.assign(new Client(), _c));
         })
     }
 
     loadInvoices(_invoices:any[]){
         _invoices.forEach( (_i) => {
-            const ni = new Invoice(_i.number,this.getClient(_i.client), undefined,(m:Message) =>{this.notify(m)}); 
+            const ni = new Invoice(
+              _i.orderNumber,
+              this.getClient(_i.client),
+              undefined,
+              (m:Message) =>{this.notify(m)},
+              () => {return this.settings.getNextInvoiceNumber()}
+              ); 
             ni.load(_i);
             this.invoices.push(ni);
         });
@@ -115,13 +121,16 @@ class Storage {
       this.clients.forEach(c => c.invoices = this.invoices.filter( i => i.client.id == c.id).reverse());
     }
 
-    newInvoice(client:Client){
-      const num = this.settings.getNextInvoiceNumber();
+    newQuote(client:Client){
+      const num = this.settings.getNextOrderNumber();
       const inv = new Invoice(
         num, 
         client || this.clients[0],
         this.settings.taxrate,
-        (m:Message) =>{this.notify(m)});
+        (m:Message) =>{this.notify(m)},
+        () => {return this.settings.getNextInvoiceNumber()}
+      );
+        
       this.invoices.push(inv);
       inv.save();
       this.activeInvoice = inv;

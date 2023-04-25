@@ -117,8 +117,8 @@ export default {
     --border: 1px solid black;
 
     --fs0: .9rem;
-    --fs1: calc(var(--fs0)*.9);
-    --fs2: calc(var(--fs0)*.7);
+    /* --fs1: calc(var(--fs0)*.9); */
+    /* --fs2: calc(var(--fs0)*.7); */
 
     --border-radius-small: 0;
 
@@ -134,7 +134,7 @@ export default {
   }
 
   html,body,#app{
-    font-family: surt;
+    font-family: diatype;
     font-size: var(--fs0);
     background-color: var(--lightgray);
   }
@@ -230,6 +230,22 @@ export default {
     color:#c8c8c8
   }
 
+  .client_row{
+    position: relative;
+  }
 
-  
+  /* .client_row::after
+  {
+    content: '_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _';
+    position: absolute;
+    display: block;
+    left:0;
+    right:0;
+    bottom: 0; 
+    line-height: 0;
+    text-align-last: justify;
+    pointer-events: none;
+    white-space: nowrap;
+  } */
+
 </style>

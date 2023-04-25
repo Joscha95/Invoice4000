@@ -1,12 +1,12 @@
 <template>
 <div class="invoices">
-    <div v-if="!hideAdd" @click="store.newInvoice(client)" class="invoice_prev invoice_new" style="--bg-col:white;"> <span>+</span> </div>
+    <div v-if="!hideAdd" @click="store.newQuote(client)" class="invoice_prev invoice_new" style="--bg-col:white;"> <span>+</span> </div>
     <div :class="['invoice_prev', store.edit && store.activeInvoice?.number != invoice.number ? 'inactive' : '']" 
         @dblclick="store.setActiveInvoice(invoice)" 
         v-for="invoice in invoices" 
         :key="invoice.number"
         :style="`--bg-col:${invoice.color};`">
-        {{ invoice.number }}: {{ invoice.sum.toLocaleString('de-DE') }}E
+        {{ invoice.quote ? `0_${invoice.orderNumber}` : invoice.number }}: {{ invoice.sum.toLocaleString('de-DE') }}E
     </div>
 </div>
     

@@ -1,5 +1,5 @@
 <template>
-<div @click="store.newInvoice(client)" class="button black" style="--bg-col:white;"> <span>+</span> </div>
+<div @click="store.newQuote(client)" class="button black" style="--bg-col:white;"> <span>+</span> </div>
 <section v-for="(group, key) in invoicesGrouped" :key="key">
   <div class="sum">{{key}}: {{group.sum.toLocaleString('de-DE')}}E</div>
   <invoices-grid :invoices="group.invoices" :hideAdd="true"/>

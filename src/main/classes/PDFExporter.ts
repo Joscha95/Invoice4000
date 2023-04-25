@@ -29,7 +29,9 @@ class PDFExporter{
 
         
         const figmaFile = await this.getFigmaFile();
-        const layout = figmaFile.invoice;
+        const layout = this.data.json.quote ? figmaFile.quote : figmaFile.invoice;
+        console.log();
+        
         console.log(layout);
         
         const mainPos = new PositionXY(layout.data.absoluteBoundingBox.x,layout.data.absoluteBoundingBox.y);
@@ -63,7 +65,7 @@ class PDFExporter{
                                     txt = this.data.json.date;
                                     break;
                                 case 'invoice_number':
-                                    txt = this.data.json.number;
+                                    txt = this.data.json.quote ? 'A'+this.data.json.orderNumber : this.data.json.number;
                                     break;
                                 case 'client_number':
                                     txt = this.data.json.client_number;

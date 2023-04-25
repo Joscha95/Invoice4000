@@ -15,9 +15,12 @@ class Invoice{
     positions: Position[];
     client: Client;
     deleted = false;
-    notify:(m:Message)=>void;
+    quote = true;
+    notify: (m:Message) => void;
+    getInvoiceNumber: () => string;
 
-    number: string;
+    number?: string;
+    orderNumber: string
     date: string;
     color:string;
     taxrate:number;
@@ -39,12 +42,13 @@ class Invoice{
         return this.client.name + '<br/>' + this.client.street + '<br/>' + this.client.zip + ' ' + this.client.city
     }
 
-    constructor(num:string, client:Client, taxrate:number = 0,notify:(m:Message)=>void){
-        this.number = num;
+    constructor(orderNum:string, client:Client, taxrate:number = 0, notify:(m:Message) => void, getInvoiceNumber:() => string){
+        this.orderNumber = orderNum;
         this.client = client;
         this.taxrate = taxrate;
         this.positions = [];
         this.notify = notify;
+        this.getInvoiceNumber = getInvoiceNumber;
         this.color = `hsl(${Math.random()*360}deg 100% 50%)`;
         this.date = dayjs().format('DD.MM.YYYY');
     }
@@ -62,25 +66,30 @@ class Invoice{
     }
 
     save(){
-      window.electron.saveFile({path:`/invoices/R_${this.number}.json`, content:this.serialize}).then( (msg:any) => {
+      window.electron.saveFile({path:`/invoices/O_${this.orderNumber}.json`, content:this.serialize}).then( (msg:any) => {
         console.log(msg);
-        msg.text = msg.type =='Error' ? msg.text : 'Saved invoice '+ this.number;
+        msg.text = msg.type =='Error' ? msg.text : 'Saved invoice '+ this.orderNumber;
         console.log(msg);
         this.notify(msg);
       });
     }
 
     async delete(){
-      const msg = await window.electron.deleteFile({path:`/invoices/R_${this.number}.json`});
-      msg.text = msg.type =='Error' ? msg.text : 'Deleted invoice '+ this.number;
+      const msg = await window.electron.deleteFile({path:`/invoices/O_${this.orderNumber}.json`});
+      msg.text = msg.type =='Error' ? msg.text : 'Deleted invoice O_'+ this.orderNumber;
       this.notify(msg);
       
       if(msg.type !='Error') this.deleted = true;
       return this.deleted;
     }
 
+    convertToInvoice(){
+      this.quote = false;
+      this.number = this.getInvoiceNumber();
+    }
+
     export(){
-        window.electron.exportInvoice({number:this.number, json:this.serialize}).then( (msg:any) => {
+        window.electron.exportInvoice({number:this.quote ? this.orderNumber : this.number, json:this.serialize}).then( (msg:any) => {
           this.notify(msg);
         });
     }
@@ -89,6 +98,9 @@ class Invoice{
         this.date = obj.date;
         this.color = obj.color || this.color;
         this.taxrate = obj.taxrate || 0;
+        this.quote = obj.quote || false;
+        this.orderNumber = obj.orderNumber;
+        this.number = obj.number;
         obj.positions.forEach( (p:any) => this.positions.push(new Position(p.text, p.sum)))
     }
 
@@ -96,7 +108,9 @@ class Invoice{
         return JSON.stringify({
             positions: this.positions,
             number : this.number,
+            orderNumber: this.orderNumber,
             sum: this.sum,
+            quote: this.quote,
             taxSum: this.taxSum,
             overallSum: this.overallSum,
             taxrate: this.taxrate,

@@ -54,7 +54,10 @@
     Taxrate: <basic-number-input v-model="store.settings.taxrate" :big="true" :inline="true" @change="store.settings.save()" :edit="true"/> %
   </div>
   <div>
-    Last Invoice Number: <basic-number-input v-model="store.settings.invoicenumber" :big="true" :inline="true" @change="store.settings.save()" :edit="true"/>
+    Last Order Number: <basic-number-input v-model="store.settings.orderNumber" :big="true" :inline="true" @change="store.settings.save()" :edit="true"/>
+  </div>
+  <div>
+    Last Invoice Number: <basic-number-input v-model="store.settings.invoiceNumber" :big="true" :inline="true" @change="store.settings.save()" :edit="true"/>
   </div>
   
 </div>
