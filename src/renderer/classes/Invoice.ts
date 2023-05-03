@@ -3,31 +3,32 @@ import dayjs from 'dayjs'
 
 class Position{
     text:string;
-    sum:number;
+    price:number;
     
-    constructor(text:string = '', sum:number = 0){
-        this.sum = sum;
+    constructor(text:string = '', price:number = 0){
+        this.price = price;
         this.text = text;
     }
 }
 
 class Invoice{
-    positions: Position[];
+    positions: Position[]= []
     client: Client;
     deleted = false;
     quote = true;
     notify: (m:Message) => void;
     getInvoiceNumber: () => string;
 
-    number?: string;
-    orderNumber: string
+    invoice_number?: string;
+    order_number: string
     date: string;
     color:string;
     taxrate:number;
+    remarks:string = '';
 
 
     public get sum(): number{
-        return this.positions.reduce((p,c) => p+c.sum, 0);
+        return this.positions.reduce((p,c) => p+c.price, 0);
     }
 
     public get taxSum(): number{
@@ -43,10 +44,9 @@ class Invoice{
     }
 
     constructor(orderNum:string, client:Client, taxrate:number = 0, notify:(m:Message) => void, getInvoiceNumber:() => string){
-        this.orderNumber = orderNum;
+        this.order_number = orderNum;
         this.client = client;
         this.taxrate = taxrate;
-        this.positions = [];
         this.notify = notify;
         this.getInvoiceNumber = getInvoiceNumber;
         this.color = `hsl(${Math.random()*360}deg 100% 50%)`;
@@ -66,17 +66,17 @@ class Invoice{
     }
 
     save(){
-      window.electron.saveFile({path:`/invoices/O_${this.orderNumber}.json`, content:this.serialize}).then( (msg:any) => {
+      window.electron.saveFile({path:`/invoices/O_${this.order_number}.json`, content:this.serialize}).then( (msg:any) => {
         console.log(msg);
-        msg.text = msg.type =='Error' ? msg.text : 'Saved invoice '+ this.orderNumber;
+        msg.text = msg.type =='Error' ? msg.text : 'Saved '+ this.order_number;
         console.log(msg);
         this.notify(msg);
       });
     }
 
     async delete(){
-      const msg = await window.electron.deleteFile({path:`/invoices/O_${this.orderNumber}.json`});
-      msg.text = msg.type =='Error' ? msg.text : 'Deleted invoice O_'+ this.orderNumber;
+      const msg = await window.electron.deleteFile({path:`/invoices/O_${this.order_number}.json`});
+      msg.text = msg.type =='Error' ? msg.text : 'Deleted '+ this.order_number;
       this.notify(msg);
       
       if(msg.type !='Error') this.deleted = true;
@@ -85,11 +85,11 @@ class Invoice{
 
     convertToInvoice(){
       this.quote = false;
-      this.number = this.getInvoiceNumber();
+      this.invoice_number = this.getInvoiceNumber();
     }
 
     export(){
-        window.electron.exportInvoice({number:this.quote ? this.orderNumber : this.number, json:this.serialize}).then( (msg:any) => {
+        window.electron.exportInvoice({number:this.quote ? this.order_number : this.invoice_number, json:this.serialize}).then( (msg:any) => {
           this.notify(msg);
         });
     }
@@ -99,16 +99,17 @@ class Invoice{
         this.color = obj.color || this.color;
         this.taxrate = obj.taxrate || 0;
         this.quote = obj.quote || false;
-        this.orderNumber = obj.orderNumber;
-        this.number = obj.number;
-        obj.positions.forEach( (p:any) => this.positions.push(new Position(p.text, p.sum)))
+        this.remarks = obj.remarks || '';
+        this.order_number = obj.order_number;
+        this.invoice_number = obj.invoice_number;
+        obj.positions.forEach( (p:any) => this.positions.push(new Position(p.text, p.price)))
     }
 
     get serialize(){
         return JSON.stringify({
             positions: this.positions,
-            number : this.number,
-            orderNumber: this.orderNumber,
+            invoice_number : this.invoice_number,
+            order_number: this.order_number,
             sum: this.sum,
             quote: this.quote,
             taxSum: this.taxSum,
@@ -117,6 +118,7 @@ class Invoice{
             client: this.client.id,
             date: this.date,
             color:this.color,
+            remarks:this.remarks,
             client_number: this.client.number,
             client_adress: this.adress
         })

@@ -10,7 +10,7 @@ class Layout{
         if(!req) return 'missing layer: required';
 
         let msg = '';
-        const requirements = ['date','client_number','invoice_number','address','sum','price','description','position'];
+        const requirements = ['price','description','position','sum','taxSum','overallSum'];
         requirements.forEach((r:string) => {
             const req_field = req.children.find((l:any) => l.name == r);
             if(!req_field) msg += 'missing required field: '+r+'<br/>';

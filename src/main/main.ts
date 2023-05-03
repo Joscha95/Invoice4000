@@ -177,9 +177,10 @@ async function handleExportInvoice(event, invoice):Promise<Message> {
     });
     if (!canceled) {
       const p = filePaths[0];
-      exp.export(`${p}/${invoice.json.quote ? 'A_' : 'R_'}${invoice.number}.pdf`);
+      const name = `${invoice.json.quote ? 'A_' : 'R_'}${invoice.number}.pdf`
+      exp.export(`${p}/${name}`);
       console.log(`exported invoice ${invoice.number}`);
-      return {type:'Success',text:`exported invoice ${invoice.number}.`}
+      return {type:'Success',text:`exported ${name}`}
     } else{
       console.log("no directory selected");
       return {type:'Neutral',text:"no directory selected."};

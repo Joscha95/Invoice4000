@@ -23,7 +23,7 @@
           <h1>{{store.activeInvoice.quote ? 'Angebot' : 'Rechnung'}}</h1>
 
           <div class="ie_body_header">
-              <div>Nr. {{ store.activeInvoice.number }}</div> <div>Kundennr. {{ store.activeInvoice.client.number }}</div> <div>{{ store.activeInvoice.date }}</div>
+              <div>Nr. {{ store.activeInvoice.quote ? store.activeInvoice.invoice_number : store.activeInvoice.order_number }}</div> <div>Kundennr. {{ store.activeInvoice.client.number }}</div> <div>{{ store.activeInvoice.date }}</div>
           </div>
           <table>
               <thead>
@@ -37,8 +37,8 @@
                   <tr v-for="(position, i) in store.activeInvoice.positions" :key="i">
                       <td>{{ ('0'+(i+1)).slice(-3) }}</td>
                       <td><basic-textarea v-model="position.text" :edit="edit"/></td>
-                      <td v-if="edit"> <basic-number-input v-model="position.sum" :edit="edit" :align="'right'" :inline="true"/> </td>
-                      <td v-else > {{ position.sum.toLocaleString('de-DE') }}E </td>
+                      <td v-if="edit"> <basic-number-input v-model="position.price" :edit="edit" :align="'right'" :inline="true"/> </td>
+                      <td v-else > {{ position.price.toLocaleString('de-DE') }}E </td>
                   </tr>
               </tbody>
           </table>
@@ -49,6 +49,7 @@
           <div class="ie_sum">Summe: {{ store.activeInvoice.sum.toLocaleString('de-DE') }}E</div>
           <div class="ie_sum">Mehrwertsteuer(<basic-number-input v-model="store.activeInvoice.taxrate" :inline="true" :edit="edit"/>%): {{ store.activeInvoice.taxSum.toLocaleString('de-DE') }}E</div>
           <div class="ie_sum">Gesamt: {{ store.activeInvoice.overallSum.toLocaleString('de-DE') }}E</div>
+          <div><basic-textarea v-model="store.activeInvoice.remarks" :edit="edit"/></div>
       </div>
     </div>
 </template>
