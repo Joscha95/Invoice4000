@@ -8,9 +8,10 @@
 - wenn neuer client direkt öffnen + in edit mode
 - immmer nur 1 client offen?
 
-- logo
-
 - pdf creation: 
   - rotate
   - line height
   - images
+
+- when no clients -> no new invoice: first client, then invoice
+- export + import data (for updates)

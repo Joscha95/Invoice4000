@@ -45,7 +45,7 @@ export default {
 	box-sizing: border-box;
 	display: block;
 	height: 100%;
-  background-color: white;
+  background-color: transparent;
 }
 .round{
   border-radius:var(--border-radius-small);

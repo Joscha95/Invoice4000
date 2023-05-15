@@ -3,9 +3,10 @@ dist
 build
 
 .DS_Store
-
+.env
 .vscode
 .idea
+.secrets
 
 appdata_dev
 out

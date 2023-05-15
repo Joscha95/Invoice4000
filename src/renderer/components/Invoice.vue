@@ -23,7 +23,7 @@
           <h1>{{store.activeInvoice.quote ? 'Angebot' : 'Rechnung'}}</h1>
 
           <div class="ie_body_header">
-              <div>Nr. {{ store.activeInvoice.quote ? store.activeInvoice.invoice_number : store.activeInvoice.order_number }}</div> <div>Kundennr. {{ store.activeInvoice.client.number }}</div> <div>{{ store.activeInvoice.date }}</div>
+              <div>Nr. {{ store.activeInvoice.quote ? store.activeInvoice.order_number : store.activeInvoice.invoice_number }}</div> <div>Kundennr. {{ store.activeInvoice.client.number }}</div> <div>{{ store.activeInvoice.date }}</div>
           </div>
           <table>
               <thead>

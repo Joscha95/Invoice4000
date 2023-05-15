@@ -59,6 +59,9 @@
   <div>
     Last Invoice Number: <basic-number-input v-model="store.settings.invoiceNumber" :big="true" :inline="true" @change="store.settings.save()" :edit="true"/>
   </div>
+  <!-- <div>
+    <div :class="{button:true,black:true}" @click="exportData">export data</div>
+  </div> -->
   
 </div>
   
@@ -84,6 +87,12 @@ export default {
             if(res.type=='Success'){
               store.refreshFonts();
             }
+            store.notify(res);
+        },
+
+        async exportData(){
+            const res = await window.electron.exportAppData();
+            
             store.notify(res);
         },
 

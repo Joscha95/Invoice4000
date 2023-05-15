@@ -8,7 +8,7 @@
         <p>{{ notification.message.text }}</p>
         <span @click="notification.kill()">x</span>
       </div>
-      <div class="bg" v-if="notification.life" :style="`--duration:${notification.life}s`"></div>
+      <div :class="{bg:true, isFirst:notification.isFirst}" v-if="notification.life" :style="`--duration:${notification.life/1000}s`"></div>
     </li>
   </transition-group>
   </ul>
@@ -91,6 +91,11 @@ export default {
   top:0;
   transform-origin: left center;
   animation: bg-fade var(--duration) linear;
+  animation-play-state: paused;
+ }
+
+ .isFirst{
+  animation-play-state: running;
  }
 
  @keyframes bg-fade {

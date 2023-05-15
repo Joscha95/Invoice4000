@@ -11,7 +11,7 @@ type Mode = 'Clients' | 'Invoices';
 type OverlayMode = 'Settings' | 'Help' | 'Hide';
 
 class Storage {
-    protected clients: Client[] = []
+    clients: Client[] = []
     protected invoices: Invoice[] = []
     protected layouts: Layout[] = []
     protected fonts: string[] = []
@@ -34,6 +34,10 @@ class Storage {
 
     get mode():Mode{
       return this.modeBool ?  'Invoices' :'Clients'
+    }
+
+    get hasClients(): boolean{
+      return this.clients.length > 0;
     }
 
     init(){
@@ -159,6 +163,8 @@ class Storage {
       this.notifications.unshift(
         new Notification(m, ()=>{this.deleteMessage(id)},id)
       );
+      this.notifications.forEach( n => n.isFirst=false);
+      this.notifications[0].isFirst = true;
     }
 
     notifyError(m:Message):boolean{
@@ -168,6 +174,8 @@ class Storage {
 
     deleteMessage(id:string){
       this.notifications = this.notifications.filter((_m:Notification) => {return _m.id != id});
+      this.notifications.forEach( n => n.isFirst=false);
+      if(this.notifications[0]) this.notifications[0].isFirst = true;
     }
 }
 

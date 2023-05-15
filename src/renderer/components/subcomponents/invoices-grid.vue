@@ -1,7 +1,7 @@
 <template>
 <div class="invoices">
     <div v-if="!hideAdd" @click="store.newQuote(client)" class="invoice_prev invoice_new" style="--bg-col:white;"> <span>+</span> </div>
-    <div :class="['invoice_prev', store.edit && store.activeInvoice?.order_number != invoice.order_number ? 'inactive' : '']" 
+    <div :class="[invoice.quote ? 'quote' : '','invoice_prev', store.edit && store.activeInvoice?.order_number != invoice.order_number ? 'inactive' : '']" 
         @dblclick="store.setActiveInvoice(invoice)" 
         v-for="invoice in invoices" 
         :key="invoice.order_number"
@@ -44,6 +44,7 @@ import store from '../../store'
   font-size: var(--fs1);
   padding: .7em .8em;
   box-sizing: border-box;
+  user-select: none;
   cursor: pointer;
   box-shadow: 0 0 8px rgba(0,0,0,.12);
   border-radius: var(--border-radius-small);
@@ -53,6 +54,10 @@ import store from '../../store'
   text-align: center;
   color: white;
   background-color: black;
+}
+
+.quote {
+  color:var(--bg-col)
 }
 
 </style>

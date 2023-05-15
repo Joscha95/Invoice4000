@@ -3,11 +3,12 @@ import {join} from 'path';
 import PDFExporter from './classes/PDFExporter';
 
 const fs = require('fs');
+// const fse = require('fs-extra');
 const path = require('path');
 let rendererWindow:BrowserWindow;
 let resourcesPath:string;
 
-function createWindow ():BrowserWindow {
+function createWindow():BrowserWindow {
   const mainWindow = new BrowserWindow({
     width: 1500,
     height: 1000,
@@ -40,6 +41,7 @@ app.whenReady().then(() => {
   ipcMain.handle('invoice:export', handleExportInvoice);
   ipcMain.handle('file:get', handleGetFile);
   ipcMain.handle('fonts:get', handleGetFonts);
+  // ipcMain.handle('appdata:export', handleExportData);
   ipcMain.handle('fonts:upload', handleUploadFonts);
   ipcMain.handle('file:save',handleSaveFile);
   ipcMain.handle('file:delete',handleDeleteFile);
@@ -190,6 +192,27 @@ async function handleExportInvoice(event, invoice):Promise<Message> {
     return createErrorMessage(e)
   }
 }
+
+// async function handleExportData():Promise<Message> {
+//   try {
+//     const { canceled, filePaths } = await dialog.showOpenDialog({
+//       properties: ['openDirectory']
+//     });
+//     if (!canceled) {
+//       const p = filePaths[0];
+//       await fse.copyFile(resourcesPath,p)
+//       console.log(`exported settings to ${p}`);
+//       return {type:'Success',text:`exported ${name}`}
+//     } else{
+//       console.log("no directory selected");
+//       return {type:'Neutral',text:"no directory selected."};
+//     }
+//   } catch (e) {
+//     console.log(e);
+    
+//     return createErrorMessage(e)
+//   }
+// }
 
 function createErrorMessage(e):Message{
   return {type:'Error',text:JSON.stringify(e)}

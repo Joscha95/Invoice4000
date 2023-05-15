@@ -67,9 +67,7 @@ class Invoice{
 
     save(){
       window.electron.saveFile({path:`/invoices/O_${this.order_number}.json`, content:this.serialize}).then( (msg:any) => {
-        console.log(msg);
         msg.text = msg.type =='Error' ? msg.text : 'Saved '+ this.order_number;
-        console.log(msg);
         this.notify(msg);
       });
     }

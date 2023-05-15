@@ -149,7 +149,7 @@ class PDFExporter{
     private template(txt:string, obj:any){
       let s = txt;
       for(var prop in obj) {
-        const d = prop == 'sum' || prop =='overallSum' ? obj[prop].toLocaleString('de-DE') : obj[prop];
+        const d = prop == 'sum' || prop =='overallSum' || prop =='price' ? obj[prop].toLocaleString('de-DE') : obj[prop];
         s = s.replace(new RegExp('{{'+ prop +'}}','g'), d);
       }
       return s;

@@ -1,5 +1,6 @@
 {
-  "name": "invoice 4000",
+  "name": "invoice-4000",
+  "productName":"Invoice 4000",
   "version": "0.1.0",
   "description": "A minimal invoice maker",
   "main": "build/main/main.js",
@@ -34,7 +35,11 @@
     "vite": "^3.0.9"
   },
   "dependencies": {
+    "@electron-forge/maker-dmg": "^6.1.1",
+    "@electron/notarize": "^1.2.3",
+    "@electron/osx-sign": "^1.0.4",
     "dayjs": "^1.11.5",
+    "dotenv": "^16.0.3",
     "electron-squirrel-startup": "^1.0.0",
     "pdfkit": "^0.13.0",
     "vue": "^3.2.36"
