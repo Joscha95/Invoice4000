@@ -4,15 +4,15 @@
 <template>
   <div @click="newClient()" class="add button black">+</div>
   <div v-for="(client,i) in store.clients" :key="i"
-    :class="{open : client.expanded,client_row:true}"
+    :class="{open : client == expanded,client_row:true}"
     >
-    <div class="client_row_head" @click="client.expanded = !client.expanded">
+    <div class="client_row_head" @click="expanded = client == expanded ? undefined : client">
       <div class="client_head_number"> {{ client.number }} </div>
       <div class="client_head_name"> {{ client.name }} </div>
       <div class="client_head_icount"> {{ client.invoices.length }} </div>
     </div>
     <div class="client_row_info">
-      <VClient v-if="client.expanded" :client="client" @delete="deleteClient"/>
+      <VClient v-if="client == expanded" :client="client" @delete="deleteClient"/>
     </div>
   </div>
   <div v-if="!store.hasClients" class="client_row empty" @click="newClient()">create your first client</div>
@@ -28,11 +28,18 @@
     expose:['deleteSelected','saveFile'],
     data() {
       return {
-        store
+        store,
+        expanded: undefined as any | Client
       }
     },
     components:{
       VClient
+    },
+    mounted(){
+      window.addEventListener('click',(e)=>{
+        const nn = (e.target! as HTMLElement).nodeName;
+        if(nn=='MAIN'||nn=='HTML') this.expanded = undefined;
+      })
     },
     methods: {
       async deleteClient(client:Client){

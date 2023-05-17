@@ -2,8 +2,8 @@ import {app, BrowserWindow, dialog, ipcMain, session, globalShortcut} from 'elec
 import {join} from 'path';
 import PDFExporter from './classes/PDFExporter';
 
-const fs = require('fs');
-// const fse = require('fs-extra');
+//const fs = require('fs');
+const fs = require('fs-extra');
 const path = require('path');
 let rendererWindow:BrowserWindow;
 let resourcesPath:string;
@@ -41,7 +41,8 @@ app.whenReady().then(() => {
   ipcMain.handle('invoice:export', handleExportInvoice);
   ipcMain.handle('file:get', handleGetFile);
   ipcMain.handle('fonts:get', handleGetFonts);
-  // ipcMain.handle('appdata:export', handleExportData);
+  ipcMain.handle('appdata:export', handleExportData);
+  ipcMain.handle('appdata:import', handleImportData);
   ipcMain.handle('fonts:upload', handleUploadFonts);
   ipcMain.handle('file:save',handleSaveFile);
   ipcMain.handle('file:delete',handleDeleteFile);
@@ -193,26 +194,49 @@ async function handleExportInvoice(event, invoice):Promise<Message> {
   }
 }
 
-// async function handleExportData():Promise<Message> {
-//   try {
-//     const { canceled, filePaths } = await dialog.showOpenDialog({
-//       properties: ['openDirectory']
-//     });
-//     if (!canceled) {
-//       const p = filePaths[0];
-//       await fse.copyFile(resourcesPath,p)
-//       console.log(`exported settings to ${p}`);
-//       return {type:'Success',text:`exported ${name}`}
-//     } else{
-//       console.log("no directory selected");
-//       return {type:'Neutral',text:"no directory selected."};
-//     }
-//   } catch (e) {
-//     console.log(e);
+async function handleExportData():Promise<Message> {
+  try {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+      properties: ['openDirectory']
+    });
+    if (!canceled) {
+      const p = filePaths[0]+'/appdata';
+      await fs.mkdir(p);
+      await fs.copy(resourcesPath,p)
+      console.log(`exported settings to ${p}`);
+      return {type:'Success',text:`exported settings to ${p}`}
+    } else{
+      console.log("no directory selected");
+      return {type:'Neutral',text:"no directory selected."};
+    }
+  } catch (e) {
+    console.log(e);
     
-//     return createErrorMessage(e)
-//   }
-// }
+    return createErrorMessage(e)
+  }
+}
+
+async function handleImportData():Promise<Message> {
+  try {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+      properties: ['openDirectory']
+    });
+    if (!canceled) {
+      const p = filePaths[0];
+      if(!p.includes('appdata')) return {type:'Error',text:"no valid directory selected."};
+      await fs.copy(p,resourcesPath)
+      console.log(`imported settings from ${p}`);
+      return {type:'Success',text:`imported settings from ${p}`}
+    } else{
+      console.log("no directory selected");
+      return {type:'Neutral',text:"no directory selected."};
+    }
+  } catch (e) {
+    console.log(e);
+    
+    return createErrorMessage(e)
+  }
+}
 
 function createErrorMessage(e):Message{
   return {type:'Error',text:JSON.stringify(e)}

@@ -41,6 +41,14 @@ class Storage {
     }
 
     init(){
+      this.reload();
+
+      window.electron.onMessage((_event:any,message:Message)=>{
+        this.notify(message);
+      });
+    }
+
+    reload(){
       window.electron.getFile({path:'/clients.json'})
       .then(res => JSON.parse(res.contents))
       .then(res => {
@@ -56,10 +64,6 @@ class Storage {
         if(this.notifyError(res)) return;
         this.setFonts(res.contents);
       })
-
-      window.electron.onMessage((_event:any,message:Message)=>{
-        this.notify(message);
-      });
 
       window.electron.getFile({path:'/settings.json'})
       .then(res => JSON.parse(res.contents))

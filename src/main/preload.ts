@@ -10,5 +10,6 @@ contextBridge.exposeInMainWorld('electron', {
   saveFile: (data) => ipcRenderer.invoke('file:save', data),
   deleteFile: (data) => ipcRenderer.invoke('file:delete', data),
   onMessage: (callback) => ipcRenderer.on('message', callback),
-  exportAppData:()=>ipcRenderer.invoke('appdata:export')
+  exportAppData:()=>ipcRenderer.invoke('appdata:export'),
+  importAppData:()=>ipcRenderer.invoke('appdata:import')
 })

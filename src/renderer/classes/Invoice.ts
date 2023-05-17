@@ -24,6 +24,7 @@ class Invoice{
     date: string;
     color:string;
     taxrate:number;
+    unixDate:number;
     remarks:string = '';
 
 
@@ -51,6 +52,7 @@ class Invoice{
         this.getInvoiceNumber = getInvoiceNumber;
         this.color = `hsl(${Math.random()*360}deg 100% 50%)`;
         this.date = dayjs().format('DD.MM.YYYY');
+        this.unixDate = Date.now();
     }
 
     addPosition(){
@@ -94,6 +96,7 @@ class Invoice{
 
     load(obj:any){
         this.date = obj.date;
+        this.unixDate = parseInt(obj.unixDate);
         this.color = obj.color || this.color;
         this.taxrate = obj.taxrate || 0;
         this.quote = obj.quote || false;
@@ -115,6 +118,7 @@ class Invoice{
             taxrate: this.taxrate,
             client: this.client.id,
             date: this.date,
+            unixDate: this.unixDate,
             color:this.color,
             remarks:this.remarks,
             client_number: this.client.number,
