@@ -48,7 +48,7 @@ export default {
 
 </script>
 
-<style>
+<style scoped>
 input{
   display: block;
   width:100%;

@@ -21,6 +21,7 @@ class PDFExporter{
         this.data = data;
         this.resourcesPath = resourcesPath;
         this.data.json = JSON.parse(this.data.json);
+        this.data.layout = JSON.parse(this.data.layout);
     }
 
     async export(path:string){
@@ -29,15 +30,15 @@ class PDFExporter{
 
         
         const figmaFile = await this.getFigmaFile();
-        const layout = this.data.json.quote ? figmaFile.quote : figmaFile.invoice;
+        const layout = this.data.layout;
         
-        console.log(layout);
+        console.log('layout',layout);
         
-        const mainPos = new PositionXY(layout.data.absoluteBoundingBox.x,layout.data.absoluteBoundingBox.y);
+        const mainPos = new PositionXY(layout.absoluteBoundingBox.x,layout.absoluteBoundingBox.y);
         this.layout = layout;
         this.figmaFile = figmaFile;
 
-        layout.data.children.forEach(mainlayer => {
+        layout.children.forEach(mainlayer => {
             if(mainlayer.name == 'custom'){
                 mainlayer.children.forEach(sublayer => {
                     switch(sublayer.type){

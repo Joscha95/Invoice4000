@@ -1,10 +1,10 @@
 // store.js
-import { reactive } from 'vue'
+import { reactive, Ref } from 'vue'
 import Client from './classes/Client'
 import Invoice from './classes/Invoice'
 import Notification from './classes/Notification'
 import Layout from './classes/Layout'
-import Settings from './classes/Settings'
+import {default as Settings, settings} from './classes/Settings'
 import {makeid} from './classes/Helpers'
 
 type Mode = 'Clients' | 'Invoices';
@@ -12,10 +12,10 @@ type OverlayMode = 'Settings' | 'Help' | 'Hide';
 
 class Storage {
     clients: Client[] = []
-    protected invoices: Invoice[] = []
-    protected layouts: Layout[] = []
-    protected fonts: string[] = []
-    protected notifications: Notification[] = []
+    invoices: Invoice[] = []
+    private _layouts: Layout[] = []
+    fonts: string[] = []
+    notifications: Notification[] = []
     activeClient?: Client
     activeInvoice?: Invoice
     showInvoice: boolean
@@ -52,25 +52,33 @@ class Storage {
       window.electron.getFile({path:'/clients.json'})
       .then(res => JSON.parse(res.contents))
       .then(res => {
-        if(this.notifyError(res)) return;
+        
         this.loadClients(res);
+
         window.electron.getInvoices().then(res => {
-          if(this.notifyError(res)) return;
+
           this.loadInvoices(res.contents);
-        });
-      });
+
+        })
+        .catch( err => this.notifyError(JSON.stringify(err)));;
+      })
+      .catch( err => this.notifyError(JSON.stringify(err)));
 
       window.electron.getFonts().then(res => {
-        if(this.notifyError(res)) return;
+
         this.setFonts(res.contents);
+
       })
+      .catch( err => this.notifyError(JSON.stringify(err)));
 
       window.electron.getFile({path:'/settings.json'})
       .then(res => JSON.parse(res.contents))
-      .then(res => {
-        if(this.notifyError(res)) return;
+      .then((res:settings) => {
+        
         this.setSettings(res);
+
       })
+      .catch( err => this.notifyError( JSON.stringify(err) ))
     }
     
     setActiveInvoice(inv:Invoice){
@@ -90,8 +98,6 @@ class Storage {
               _i.orderNumber,
               this.getClient(_i.client),
               undefined,
-              (m:Message) =>{this.notify(m)},
-              () => {return this.settings.getNextInvoiceNumber()}
               ); 
             ni.load(_i);
             this.invoices.push(ni);
@@ -99,13 +105,14 @@ class Storage {
         this.updateInvoices();
     }
 
-    setSettings(s:any){
-        this.settings.load(s);
-        this.settings.notify = (m:Message) =>{this.notify(m)};
+    setSettings(s:settings){
+      
+      this.settings.load(s);
+        
     }
 
     setFonts(fts:string[]){
-        this.fonts = fts;
+      this.fonts = fts;
     }
 
     refreshFonts(){
@@ -129,14 +136,12 @@ class Storage {
       this.clients.forEach(c => c.invoices = this.invoices.filter( i => i.client.id == c.id).reverse());
     }
 
-    newQuote(client:Client){
+    newQuote(client?:Client){
       const num = this.settings.getNextOrderNumber();
       const inv = new Invoice(
         num, 
-        client || this.clients[0],
+        client || this.activeClient || this.clients[0],
         this.settings.taxrate,
-        (m:Message) =>{this.notify(m)},
-        () => {return this.settings.getNextInvoiceNumber()}
       );
         
       this.invoices.push(inv);
@@ -169,11 +174,13 @@ class Storage {
       );
       this.notifications.forEach( n => n.isFirst=false);
       this.notifications[0].isFirst = true;
+
+      console.log(this.notifications);
+      
     }
 
-    notifyError(m:Message):boolean{
-      if(m.type == 'Error') this.notify(m);
-      return m.type == 'Error';
+    notifyError(text:string) {
+      this.notify({type:'Error', text});
     }
 
     deleteMessage(id:string){
@@ -183,6 +190,6 @@ class Storage {
     }
 }
 
-const store = reactive(new Storage())
+const store = reactive<Storage>(new Storage()) as Storage;
 
 export default store;

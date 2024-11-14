@@ -1,4 +1,4 @@
-import {app, BrowserWindow, dialog, ipcMain, session, globalShortcut} from 'electron';
+import {app, BrowserWindow, dialog, ipcMain, session, globalShortcut, shell} from 'electron';
 import {join} from 'path';
 import PDFExporter from './classes/PDFExporter';
 
@@ -173,17 +173,24 @@ async function handleGetInvoices():Promise<Message> {
 }
 
 async function handleExportInvoice(event, invoice):Promise<Message> {
+  
   try {
     const exp = new PDFExporter(invoice,resourcesPath);
     const { canceled, filePaths } = await dialog.showOpenDialog({
         properties: ['openDirectory']
     });
     if (!canceled) {
+
       const p = filePaths[0];
-      const name = `${invoice.json.quote ? 'A_' : 'R_'}${invoice.number}.pdf`
-      exp.export(`${p}/${name}`);
+      const name = `${invoice.json.quote ? 'A_' : 'R_'}${invoice.number}.pdf`;
+      const _path = `${p}/${name}`;
+      exp.export(_path);
       console.log(`exported invoice ${invoice.number}`);
+
+      shell.showItemInFolder(_path);
+
       return {type:'Success',text:`exported ${name}`}
+
     } else{
       console.log("no directory selected");
       return {type:'Neutral',text:"no directory selected."};

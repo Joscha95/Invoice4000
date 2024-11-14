@@ -13,6 +13,8 @@ export default interface ElectronApi {
   saveFile(d:any) : Promise<Message>,
   deleteFile(d:any) : Promise<Message>,
   onMessage(f:Function) : void,
+  exportAppData:() => Promise<Message>,
+  importAppData:() => Promise<Message>
 }
 
 declare global {

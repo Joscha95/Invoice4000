@@ -6,12 +6,8 @@
 - warnung wenn nicht verbunden mit internet bei figma file load
 
 - wenn neuer client direkt öffnen + in edit mode
-- immmer nur 1 client offen?
 
 - pdf creation: 
   - rotate
   - line height
   - images
-
-- when no clients -> no new invoice: first client, then invoice
-- export + import data (for updates)

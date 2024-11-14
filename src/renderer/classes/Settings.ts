@@ -1,7 +1,8 @@
+import store from '../store'
 import FigmaFile from './FigmaFile'
 import dayjs from 'dayjs'
 
-class Settings {
+export type settings = {
   figmaFileId:string
   figmaAccessToken:string
   figmaFile: FigmaFile
@@ -10,7 +11,17 @@ class Settings {
   lastSavedInvoiceYear:string
   orderNumber: number
   lastSavedOrderYear: string
-  notify:(m:Message)=> void
+}
+
+export default class Settings {
+  figmaFileId:string
+  figmaAccessToken:string
+  figmaFile: FigmaFile
+  taxrate: number
+  invoiceNumber:number
+  lastSavedInvoiceYear:string
+  orderNumber: number
+  lastSavedOrderYear: string
 
   constructor(d?:any){
     this.figmaFileId = d?.figmaFileId || '' ;
@@ -21,24 +32,40 @@ class Settings {
     this.orderNumber = d?.orderNumber;
     this.lastSavedOrderYear = d?.lastSavedOrderYear;
     this.figmaFile = new FigmaFile();
-    this.notify = () => {};
+  }
+
+  get serialized(){
+    return {
+      figmaFileId: this.figmaFileId,
+      figmaAccessToken: this.figmaAccessToken,
+      taxrate: this.taxrate,
+      invoiceNumber: this.invoiceNumber,
+      lastSavedInvoiceYear: this.lastSavedInvoiceYear,
+      orderNumber: this.orderNumber,
+      lastSavedOrderYear: this.lastSavedOrderYear,
+      figmaFile: this.figmaFile.serialized,
+    }
   }
 
   save(){
-    window.electron.saveFile({path:`/settings.json`,content:JSON.stringify(this)})
+    window.electron.saveFile({path:`/settings.json`,content:JSON.stringify(this.serialized)})
     .then((msg:Message) => {
-      this.notify({type:msg.type, text:msg.type =='Error' ? msg.text : 'Updated settings.'});
+      store.notify({type:msg.type, text:msg.type =='Error' ? msg.text : 'Updated settings.'});
+      console.log(msg);
+      
     });
+    console.log('save');
+    
   }
 
-  load(d:any){
+  load(d:settings){
     this.figmaFileId = d.figmaFileId;
     this.figmaAccessToken = d.figmaAccessToken;
     this.taxrate = d.taxrate;
     this.lastSavedInvoiceYear = d.lastSavedInvoiceYear;
     this.lastSavedOrderYear = d.lastSavedOrderYear;
-    this.invoiceNumber = parseInt(d.invoiceNumber);
-    this.orderNumber = parseInt(d.orderNumber);
+    this.invoiceNumber = d.invoiceNumber;
+    this.orderNumber = d.orderNumber;
     this.figmaFile.load(d.figmaFile);
   }
 
@@ -63,5 +90,3 @@ class Settings {
   }
 
 }
-
-export default Settings

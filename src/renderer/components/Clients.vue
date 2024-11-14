@@ -1,6 +1,3 @@
-<script setup lang="ts">
-</script>
-
 <template>
   <div @click="newClient()" class="add button black">+</div>
   <div v-for="(client,i) in store.clients" :key="i"
@@ -19,46 +16,38 @@
 </template>
 
 
-<script lang="ts">
-  import store from '../store'
-  import Client from '../classes/Client'
-  import VClient from './subcomponents/client.vue'
+<script setup lang="ts">
+import store from '../store'
+import Client from '../classes/Client'
+import VClient from './subcomponents/client.vue'
+import { onMounted, ref, Ref } from 'vue';
 
-  export default {
-    expose:['deleteSelected','saveFile'],
-    data() {
-      return {
-        store,
-        expanded: undefined as any | Client
-      }
-    },
-    components:{
-      VClient
-    },
-    mounted(){
-      window.addEventListener('click',(e)=>{
+const expanded:Ref< undefined | Client> = ref(undefined);
+
+  onMounted(()=>{
+    window.addEventListener('click',(e)=>{
         const nn = (e.target! as HTMLElement).nodeName;
-        if(nn=='MAIN'||nn=='HTML') this.expanded = undefined;
+        if(nn=='MAIN'||nn=='HTML') expanded.value = undefined;
       })
-    },
-    methods: {
-      async deleteClient(client:Client){
-        for (const invoice of client.invoices) {
-          await invoice.delete();
-        } 
-        this.store.updateInvoices();
-        this.store.clients.splice(this.store.clients.indexOf(client),1);
-        this.store.saveClients();
-      },
-      newClient(){
-        const newNum = this.store.clients.length > 0 ? ("00" + (parseInt(this.store.clients[this.store.clients.length-1].number)+1)).slice(-3) : "001";
-        
-        this.store.clients.push(new Client(newNum));
-        this.store.activeClient = this.store.clients[this.store.clients.length-1];
-        this.store.saveClients();
-      }
-    }
+  })
+
+  async function deleteClient(client:Client){
+    for (const invoice of client.invoices) {
+      await invoice.delete();
+    } 
+    store.updateInvoices();
+    store.clients.splice(store.clients.indexOf(client),1);
+    store.saveClients();
   }
+
+  function newClient(){
+    const newNum = store.clients.length > 0 ? ("00" + (parseInt(store.clients[store.clients.length-1].number)+1)).slice(-3) : "001";
+    
+    store.clients.push(new Client(newNum));
+    store.activeClient = store.clients[store.clients.length-1];
+    store.saveClients();
+  }
+
 </script>
 <style scoped>
 .client_row{

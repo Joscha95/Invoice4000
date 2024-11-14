@@ -1,16 +1,3 @@
-<script setup lang="ts">
-import Clients from './components/Clients.vue'
-import Invoices from './components/Invoices.vue'
-import Invoice from './components/Invoice.vue'
-import Settings from './components/Settings.vue'
-import Help from './components/Help.vue'
-import Messages from './components/Messages.vue'
-
-import store from './store'
-import toggle from './components/subcomponents/toggle.vue'
-import sideOverlay from './components/subcomponents/side-overlay.vue'
-</script>
-
 <template>
   <header>
     <section id="header_bar">
@@ -35,7 +22,13 @@ import sideOverlay from './components/subcomponents/side-overlay.vue'
       </side-overlay>
     </Transition>
 
-    <component :is="store.mode"/>
+    <section 
+      :class="{
+        'hide-overflow': store.overlayMode !='Hide'
+      }"
+    >
+      <component :is="mode"/>
+    </section>
 
     <Transition name="invoice-fade">
       <Invoice v-if="store.showInvoice" />
@@ -44,50 +37,39 @@ import sideOverlay from './components/subcomponents/side-overlay.vue'
   </main>
 </template>
 
-<script lang="ts">
-export default {
-  expose:[],
-  data() {
-    return {
-      store,
-      isClients:true,
-      hihi:false,
-      S:false,
-    }
-  },
-  components:{
-    Invoices,
-    Invoice,
-    Settings,
-    Clients,
-    toggle,
-    Help,
-    Messages
-  },
-  watch:{
-    // isClients(){
-    //   console.log(this.isClients,'app');
+<script setup lang="ts">
+import Clients from './components/Clients.vue'
+import Invoices from './components/Invoices.vue'
+import Invoice from './components/Invoice.vue'
+import Settings from './components/Settings.vue'
+import Help from './components/Help.vue'
+import Messages from './components/Messages.vue'
+
+import store from './store'
+import toggle from './components/subcomponents/toggle.vue'
+import sideOverlay from './components/subcomponents/side-overlay.vue'
+import { computed, onMounted, ref } from 'vue'
+
+const isClients = ref(true);
+
+const mode = computed(() => store.mode == 'Clients' ? Clients : Invoices)
+
+onMounted(() => {
+  store.init();
+  window.onkeydown = (event)=>{
+    if((event.key == 's' && (event.ctrlKey||event.metaKey)|| (event.which == 19))){
+      switch (store.mode) {
+        case 'Clients':
+            store.activeInvoice?.save();
+          break;
       
-    //   this.store.mode = this.isClients ? 'Clients' : 'Invoices'
-    // }
-  },
-  mounted(){
-    store.init();
-    window.onkeydown = (event)=>{
-      if((event.key == 's' && (event.ctrlKey||event.metaKey)|| (event.which == 19))){
-        switch (this.mode) {
-          case 'clients':
-              this.$refs.client.saveFile();
-            break;
-        
-          default:
-            break;
-        }
+        default:
+          break;
       }
     }
-    
   }
-}
+  
+})
 </script>
 
 <style>
@@ -105,6 +87,7 @@ export default {
     --lightgray: #FAFAFA ;
     --middlegray: #ECECEC ;
     --gray:rgb(200,200,200);
+    --lightgray:rgb(252, 252, 252);
     --lightblue:rgb(227, 227, 227) ;
     --lightgreen:rgb(213, 235, 213) ;
     --anthrazite: rgb(40, 40, 40);
@@ -120,7 +103,9 @@ export default {
     /* --fs1: calc(var(--fs0)*.9); */
     /* --fs2: calc(var(--fs0)*.7); */
 
-    --border-radius-small: 0;
+    --border-radius-small: 3px;
+
+    --shadow: 0 0 7px rgba(0,0,0,.1);
 
     --bgBlur: 5px;
 
@@ -159,6 +144,10 @@ export default {
     align-items: center;
   }
 
+  .hide-overflow{
+    overflow: hidden;
+  }
+
   #header_bar > div{
     flex: 1;
   }
@@ -192,6 +181,8 @@ export default {
 
   .button.inactive{
     opacity: .2;
+    pointer-events: none;
+    cursor: not-allowed;
   }
 
   .button.black{

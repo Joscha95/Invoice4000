@@ -14,32 +14,26 @@
   </ul>
 </template>
 
-<script>
+<script setup lang="ts">
+import { onMounted } from 'vue';
 import store from '../store'
-export default {
-  
-  data(){
-    return{
-      store
-    }
-  },
-  mounted(){
-    // const notifications = [
-    //   {type:'Warning',message:'Your Layout is not loaded'},
-    //   {type:'Success',message:'Font uploaded'},
-    //   {type:'Warning',message:'Your Layout is missing a Font'},
-    //   {type:'Neutral',message:'No Font selected'},
-    //   {type:'Error',message:'No Font selected'},
-    //   ]
-    // let ind = 0;
-    // setInterval(()=>{
-    //   if(ind > 6) return;
-    //   const m = notifications[ind % notifications.length];
-    //   this.store.notify(m.type,m.message);
-    //   ind++;
-    //   },1000);
-  }
-}
+
+// onMounted(()=>{
+//     const notifications = [
+//       {type:'Warning',text:'Your Layout is not loaded'},
+//       {type:'Success',text:'Font uploaded'},
+//       {type:'Warning',text:'Your Layout is missing a Font'},
+//       {type:'Neutral',text:'No Font selected'},
+//       {type:'Error',text:'No Font selected'},
+//       ]
+//     let ind = 0;
+//     setInterval(()=>{
+//       if(ind > 6) return;
+//       const m = notifications[ind % notifications.length];
+//       store.notify(m);
+//       ind++;
+//       },1000);
+// })
 </script>
 
 <style scoped>

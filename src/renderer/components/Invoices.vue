@@ -1,5 +1,6 @@
 <template>
-<div v-if="store.hasClients" @click="store.newQuote(client)" class="button black" style="--bg-col:white;"> <span>+</span> </div>
+<div v-if="store.hasClients" @click="store.newQuote()" class="button black" style="--bg-col:white;"> <span>+</span> </div>
+
 <section v-for="(group, key) in invoicesGrouped" :key="key">
   <div class="sum">{{key}}: {{group.sum.toLocaleString('de-DE')}}E</div>
   <invoices-grid :invoices="group.invoices" :hideAdd="true"/>
@@ -8,37 +9,39 @@
     
 </template>
 
-<script>
-    import store from '../store'
-    import invoicesGrid from './subcomponents/invoices-grid.vue' 
+<script setup lang="ts">
+import { computed } from 'vue';
+import store from '../store'
+import invoicesGrid from './subcomponents/invoices-grid.vue' ;
 
-    export default {
-        data() {
-            return {
-                store,
-                groupBy:1
-            }
-        },
-        components: { invoicesGrid },
-        computed:{
-          invoicesGrouped(){
-            const m = {};
-            this.store.invoices.forEach(i => {
-              const k = i.date.split('.')[this.groupBy+1];
-              if(m[k]) {
-                m[k].invoices.push(i);
-                if(!i.quote) m[k].sum+=i.sum;
-              } else{
-                m[k] = {
-                  invoices:[i],
-                  sum: i.quote ? 0 : i.sum 
-                }
-              }
-            });
-            return m;
-          }
-        }
+
+export interface Props {
+  groupBy?:number
+}
+
+const props = withDefaults(defineProps<Props>(),{
+  groupBy:1
+})
+
+const invoicesGrouped = computed(()=>{
+  
+  const m:any = {};
+
+  store.invoices.forEach(i => {
+    const k = i.date.split('.')[props.groupBy+1];
+    if(m[k]) {
+      m[k].invoices.push(i);
+      if(!i.quote) m[k].sum+=i.sum;
+    } else{
+      m[k] = {
+        invoices:[i],
+        sum: i.quote ? 0 : i.sum 
+      }
     }
+  });
+
+  return m;
+})
 </script>
 
 <style scoped>

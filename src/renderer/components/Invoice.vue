@@ -5,7 +5,15 @@
         <button-wrapper>
           <div class="edit button black" v-if="store.activeInvoice.quote && edit" @click="store.activeInvoice.convertToInvoice()">convert to invoice</div>
           <div class="edit button red" v-if="edit" @click="store.deleteActiveInvoice();edit=false">delete</div>
-          <div class="edit button black" @click="store.activeInvoice.export()">export</div>
+          <div 
+            class="edit button black" 
+            :class="{
+              'inactive': store.activeInvoice.quote ? !store.settings.figmaFile.currentLayout?.quoteLayout : false
+            }"
+            @click="store.activeInvoice.export(store.settings.figmaFile.currentLayout)"
+          >
+            export
+          </div>
           <div class="edit button black" @click="edit=!edit; if(!edit) store.activeInvoice.save()">{{edit ? "save" : "edit"}}</div>
         </button-wrapper>
         
@@ -54,41 +62,24 @@
     </div>
 </template>
 
-<script>
+<script setup lang="ts">
 import store from '../store';
 import buttonWrapper from "./subcomponents/button-wrapper.vue";
 import basicInput from "./subcomponents/basic-input.vue";
 import basicTextarea from "./subcomponents/basic-textarea.vue";
 import toggle from "./subcomponents/toggle.vue";
 import basicNumberInput from "./subcomponents/basic-number-input.vue";
+import { ref } from 'vue';
 
-export default {
-    data() {
-        return {
-            store,
-            clientId:store.activeInvoice.client.id,
-            edit:false
-        }
-    },
-    components:{
-      basicInput,
-      basicTextarea,
-      basicNumberInput,
-      buttonWrapper,
-      toggle
-    },
-    watch:{
-        'store.activeInvoice'(newInvoice){
-            if(!newInvoice) return;
-            this.clientId = newInvoice.client.id;
-        }
-    },
-    methods:{
-        changeClient(e){
-            store.activeInvoice.client = store.getClient(e.target.value) || store.activeInvoice.client;
-        }
-    }
+const edit = ref(false);
+
+const clientId = ref(store.activeInvoice?.client.id || '');
+
+function changeClient(e:Event){
+  if(store.activeInvoice)
+    store.activeInvoice.client = store.getClient((e.target as HTMLSelectElement).value) || store.activeInvoice.client;
 }
+
 </script>
 
 <style scoped>

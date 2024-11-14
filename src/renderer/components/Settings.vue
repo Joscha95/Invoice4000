@@ -1,5 +1,5 @@
 <template>
-  <div id="settings" @drop="onDrop">
+  <div id="settings">
   <table>
     <tr>
       <td>Figma Access token </td>
@@ -11,43 +11,32 @@
     </tr>
     <tr>
       <td> </td>
-      <td> <div :class="{button:true,black:true, inactive: this.loading}" @click="loadLayout">load layout</div></td>
+      <td> <div :class="{button:true,black:true, inactive: loading}" @click="loadLayout">load layout</div></td>
     </tr>
   </table>
 
   <div v-if="layoutErr != null">{{ layoutErr.err }}</div>
   <div class="layouts"> 
-    <h2>{{store.settings.figmaFile.name}}</h2>
-    <div v-if="store.settings.figmaFile.invoice" class="green">
-      <h3>found invoice</h3>
-    </div>
-    <div v-else class="red">
-      <h3>missing invoice</h3>
-      <div class="help">
-        Please add a Frame named “invoice_4000” <br> and 595x842 px to your File  
-      </div>
-    </div>
-    <div v-if="store.settings.figmaFile.quote" class="green">
-      <h3>found quote</h3>
-    </div>
-    <div v-else class="red">
-      <h3>missing quote</h3>
-      <div class="help">
-        Please add a Frame named “quote_4000” <br> and 595x842 px to your File  
-      </div>
-    </div>
+    
+    <h2>File: {{store.settings.figmaFile.name}}</h2>
+
+    <LayoutsList
+      :layouts="store.settings.figmaFile.invoiceLayouts"
+    />
+
     <div class="select_fonts">
-        <div v-for="font in store.settings.figmaFile.fonts" :key="font" class="select_font">
-          <label>{{font}}: </label>
+      <h3>Fonts</h3>
+      <div v-for="font in store.settings.figmaFile.fonts" :key="font" class="select_font">
+        <label>{{font}}: </label>
 
-          <select :name="font" @change="setFonts($event,font)">
-              <option disabled selected value> -- select a font -- </option>
-              <option v-for="fontFile in store.fonts" :key="fontFile" :selected="store.settings.figmaFile.getFontFileName(font)==fontFile" :value="fontFile">{{fontFile}}</option>
-          </select>
+        <select :name="font" @change="setFonts($event,font)">
+            <option disabled selected value> -- select a font -- </option>
+            <option v-for="fontFile in store.fonts" :key="fontFile" :selected="store.settings.figmaFile.getFontFileName(font)==fontFile" :value="fontFile">{{fontFile}}</option>
+        </select>
       </div>
+      <div class="button black" @click="uploadFont">Add Font</div>
     </div>
-
-    <div class="button black" @click="uploadFont">Add Font</div>
+   
   </div>
 
   <div>
@@ -67,87 +56,86 @@
   
 </template>
 
-<script>
+<script lang="ts" setup>
+import { Ref, ref } from 'vue';
 import store from '../store'
 import basicInput from './subcomponents/basic-input.vue';
 import basicNumberInput from './subcomponents/basic-number-input.vue';
+import LayoutsList from './layouts-list.vue';
 
-export default {
-  components: { basicInput,basicNumberInput },
-    data(){
-        return{
-            store,
-            layoutErr:null,
-            loading:false
-        }
-    },
-    methods:{
-        async uploadFont(){
-            const res = await window.electron.uploadFonts();
-            if(res.type=='Success'){
-              store.refreshFonts();
-            }
-            store.notify(res);
-        },
+const layoutErr:Ref<any|undefined> = ref(undefined);
+const loading:Ref<boolean> = ref(false);
 
-        async exportData(){
-            const res = await window.electron.exportAppData();
-            
-            store.notify(res);
-        },
-
-        async importData(){
-            const res = await window.electron.importAppData();
-            store.reload();
-            store.notify(res);
-        },
-
-        save(){
-            store.settings.save();
-        },
-
-        setFonts(e,font){
-            store.settings.figmaFile.setFontMap(font,e.target.value);
-            this.store.settings.save();
-        },
-
-        loadLayout(e){
-            if(this.loading) return;
-            this.loading = true;
-            var myHeaders = new Headers();
-            myHeaders.append("X-Figma-Token", store.settings.figmaAccessToken);
-
-            var requestOptions = {
-            method: 'GET',
-            headers: myHeaders,
-            redirect: 'follow'
-            };
-
-            fetch("https://api.figma.com/v1/files/"+store.settings.figmaFileId, requestOptions)
-            .then(response => response.text())
-            .then(text => JSON.parse(text))
-            .then(result => {
-                this.loading = false;
-                console.log(result);
-                if(result.err) {
-                  store.notify({type:'Error',text:'Figma: '+result.err});
-                  return;
-                }
-
-                this.store.settings.figmaFile.import(result);
-                this.store.settings.save();
-            })
-            .catch(error => {
-                this.layoutErr = error;
-                this.loading = false;
-            });
-        }
-
+async function uploadFont(){
+    const res = await window.electron.uploadFonts();
+    if(res.type=='Success'){
+      store.refreshFonts();
     }
+    store.notify(res);
+}
+
+async function exportData(){
+    const res = await window.electron.exportAppData();
+    
+    store.notify(res);
+}
+
+async function importData(){
+    const res = await window.electron.importAppData();
+    store.reload();
+    store.notify(res);
+}
+
+function save(){
+    store.settings.save();
+}
+
+function setFonts(e:Event,font:string){
+    store.settings.figmaFile.setFontMap(font,(e.target as HTMLSelectElement).value);
+    store.settings.save();
+}
+
+function loadLayout(){
+    if(loading.value) return;
+    loading.value = true;
+    var myHeaders = new Headers();
+    myHeaders.append("X-Figma-Token", store.settings.figmaAccessToken);
+
+    var requestOptions = {
+      method: 'GET',
+      headers: myHeaders,
+    };
+
+    fetch("https://api.figma.com/v1/files/"+store.settings.figmaFileId, requestOptions)
+    .then(response => response.text())
+    .then(text => JSON.parse(text))
+    .then(result => {
+        loading.value = false;
+        console.log(result);
+        if(result.err) {
+          store.notify({type:'Error',text:'Figma: '+result.err});
+          return;
+        }
+
+        store.settings.figmaFile.import(result);
+        store.settings.save();
+    })
+    .catch(error => {
+        layoutErr.value = error;
+        loading.value = false;
+    });
 }
 </script>
 
 <style scoped>
+
+#settings{
+  overflow-y: auto;
+}
+
+.select_fonts{
+  line-height: 2;
+}
 
 #settings >*{
   margin: 2em 0;
@@ -168,11 +156,11 @@ h2{
 
 .layouts{
   background-color: white;
-  box-shadow: 0 0 10px rgba(0,0,0,.2);
+  box-shadow: var(--shadow);
   width: max-content;
   min-width:40em;
   padding: 2em;
-  border-radius: 2em;
+  border-radius: .5rem;
 }
 
 .select_fonts{

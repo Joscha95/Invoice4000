@@ -1,11 +1,14 @@
 <template>
 <div class="invoices">
     <div v-if="!hideAdd" @click="store.newQuote(client)" class="invoice_prev invoice_new" style="--bg-col:white;"> <span>+</span> </div>
-    <div :class="[invoice.quote ? 'quote' : '','invoice_prev', store.edit && store.activeInvoice?.order_number != invoice.order_number ? 'inactive' : '']" 
-        @dblclick="store.setActiveInvoice(invoice)" 
-        v-for="invoice in invoices" 
-        :key="invoice.order_number"
-        :style="`--bg-col:${invoice.color};`">
+    <div
+      class="invoice-element"
+      :class="[invoice.quote ? 'quote' : '','invoice_prev', store.edit && store.activeInvoice?.order_number != invoice.order_number ? 'inactive' : '']" 
+      @dblclick="store.setActiveInvoice(invoice)" 
+      v-for="invoice in invoices" 
+      :key="invoice.order_number"
+      :style="`--bg-col:${invoice.color};`"
+    >
         {{ invoice.quote ? `0_${invoice.order_number}` : invoice.invoice_number }}: {{ invoice.sum.toLocaleString('de-DE') }}E
     </div>
 </div>
@@ -35,7 +38,12 @@ import store from '../../store'
 .invoices{
   display: grid;
   grid-template-columns: repeat(2,1fr);
-  grid-gap: calc(var(--site-padding) / 2)
+  grid-gap: calc(var(--site-padding) / 2);
+  padding: calc(var(--site-padding) / 2)
+}
+
+.invoice-element:hover{
+  background-color: var(--lightgray);
 }
 
 .invoice_prev{
@@ -46,7 +54,8 @@ import store from '../../store'
   box-sizing: border-box;
   user-select: none;
   cursor: pointer;
-  box-shadow: 0 0 8px rgba(0,0,0,.12);
+  border-radius: var(--border-radius-small);
+  box-shadow: var(--shadow);
   border-radius: var(--border-radius-small);
 }
 

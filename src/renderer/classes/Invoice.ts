@@ -1,5 +1,8 @@
 import Client from './Client'
 import dayjs from 'dayjs'
+import Layout from './Layout';
+import store from '../store';
+import LayoutInvoice from './LayoutInvoice';
 
 class Position{
     text:string;
@@ -16,8 +19,6 @@ class Invoice{
     client: Client;
     deleted = false;
     quote = true;
-    notify: (m:Message) => void;
-    getInvoiceNumber: () => string;
 
     invoice_number?: string;
     order_number: string
@@ -44,12 +45,10 @@ class Invoice{
         return this.client.name + '<br/>' + this.client.street + '<br/>' + this.client.zip + ' ' + this.client.city
     }
 
-    constructor(orderNum:string, client:Client, taxrate:number = 0, notify:(m:Message) => void, getInvoiceNumber:() => string){
+    constructor(orderNum:string, client:Client, taxrate:number = 0){
         this.order_number = orderNum;
         this.client = client;
         this.taxrate = taxrate;
-        this.notify = notify;
-        this.getInvoiceNumber = getInvoiceNumber;
         this.color = `hsl(${Math.random()*360}deg 100% 50%)`;
         this.date = dayjs().format('DD.MM.YYYY');
         this.unixDate = Date.now();
@@ -70,14 +69,14 @@ class Invoice{
     save(){
       window.electron.saveFile({path:`/invoices/O_${this.order_number}.json`, content:this.serialize}).then( (msg:any) => {
         msg.text = msg.type =='Error' ? msg.text : 'Saved '+ this.order_number;
-        this.notify(msg);
+        store.notify(msg);
       });
     }
 
     async delete(){
       const msg = await window.electron.deleteFile({path:`/invoices/O_${this.order_number}.json`});
       msg.text = msg.type =='Error' ? msg.text : 'Deleted '+ this.order_number;
-      this.notify(msg);
+      store.notify(msg);
       
       if(msg.type !='Error') this.deleted = true;
       return this.deleted;
@@ -85,13 +84,22 @@ class Invoice{
 
     convertToInvoice(){
       this.quote = false;
-      this.invoice_number = this.getInvoiceNumber();
+      this.invoice_number = store.settings.getNextInvoiceNumber();
+      this.save();
     }
 
-    export(){
-        window.electron.exportInvoice({number:this.quote ? this.order_number : this.invoice_number, json:this.serialize}).then( (msg:any) => {
-          this.notify(msg);
-        });
+    export(_layout?:LayoutInvoice){
+
+      if(!_layout) return store.notifyError('No Layout provided for export.');
+
+      const layoutData = this.quote ? _layout.quoteLayout?.data : _layout.data;
+
+      if(!layoutData) return this.quote ? store.notifyError('No Layout provided for quote export.') : store.notifyError('No Layout provided for invoice export.');
+
+      window.electron.exportInvoice({number:this.quote ? this.order_number : this.invoice_number, json:this.serialize, layout: JSON.stringify(layoutData)}).then( (msg:any) => {
+        store.notify(msg);
+      });
+
     }
 
     load(obj:any){

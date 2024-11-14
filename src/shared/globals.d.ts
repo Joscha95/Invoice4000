@@ -1,7 +1,7 @@
 declare global{
   type messageType = 'Error' | 'Warning' | 'Neutral' | 'Success';
   
-  interface Message{
+  type Message = {
     type: messageType,
     text:string,
     contents?:any

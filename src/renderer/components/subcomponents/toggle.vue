@@ -64,7 +64,7 @@ export default {
 	transition: left .2s;
 	z-index: 0;
 	box-sizing: border-box;
-	box-shadow: 0 0 5px rgba(0,0,0,0.5);
+	box-shadow: var(--shadow);
 	border-right: var(--border);
 }
 .slider:hover:after, input:checked + .slider:hover:after {
