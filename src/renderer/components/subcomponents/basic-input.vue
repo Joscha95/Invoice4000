@@ -58,7 +58,7 @@ input{
   outline:none;
   font-family: inherit;
   text-align: inherit;
-  /* border-radius:var(--border-radius-small); */
+  /* border-radius:var(--radius); */
 }
 
 input:focus{
@@ -66,7 +66,7 @@ input:focus{
 }
 
 input.big{
-  border-radius:var(--border-radius-small);
+  border-radius:var(--radius);
   padding: .7em .3em .4em .3em;
 }
 

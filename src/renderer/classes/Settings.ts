@@ -14,12 +14,12 @@ export type settings = {
 }
 
 export default class Settings {
-  figmaFileId:string
-  figmaAccessToken:string
+  figmaFileId: string
+  figmaAccessToken: string
   figmaFile: FigmaFile
   taxrate: number
   invoiceNumber:number
-  lastSavedInvoiceYear:string
+  lastSavedInvoiceYear: string
   orderNumber: number
   lastSavedOrderYear: string
 
@@ -50,8 +50,8 @@ export default class Settings {
   save(){
     window.electron.saveFile({path:`/settings.json`,content:JSON.stringify(this.serialized)})
     .then((msg:Message) => {
+      
       store.notify({type:msg.type, text:msg.type =='Error' ? msg.text : 'Updated settings.'});
-      console.log(msg);
       
     });
     console.log('save');

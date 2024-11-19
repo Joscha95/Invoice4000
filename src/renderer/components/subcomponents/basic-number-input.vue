@@ -60,14 +60,14 @@ input{
   border-style: inset;
   outline:none;
   font-family: inherit;
-  /* border-radius:var(--border-radius-small); */
+  /* border-radius:var(--radius); */
 }
 
 input:focus{
   border: var(--border);
 }
 input.big{
-  border-radius:var(--border-radius-small);
+  border-radius:var(--radius);
   padding: .7em .3em .4em .3em;
 }
 .inline{

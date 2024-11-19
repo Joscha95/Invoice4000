@@ -3,8 +3,8 @@ require('dotenv').config()
 module.exports = {
   packagerConfig: {
     extraResource: 'appdata',
-    icon:'icons/invoice4000',
-    appBundleId:'eu.joschabruening.invoice4000',
+    icon: 'icons/invoice4000',
+    appBundleId: 'eu.joschabruening.invoice4000',
     osxSign: {
       hardenedRuntime: true
     }, // object must exist even if empty
@@ -29,7 +29,8 @@ module.exports = {
       name: '@electron-forge/maker-dmg',
       config: {
         format: 'ULFO',
-        overwrite:true
+        overwrite: true,
+        debug: true
       }
     },
     // {

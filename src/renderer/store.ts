@@ -60,16 +60,16 @@ class Storage {
           this.loadInvoices(res.contents);
 
         })
-        .catch( err => this.notifyError(JSON.stringify(err)));;
+        .catch( err => this.notifyError(err));
       })
-      .catch( err => this.notifyError(JSON.stringify(err)));
+      .catch( err => this.notifyError(err));
 
       window.electron.getFonts().then(res => {
 
         this.setFonts(res.contents);
 
       })
-      .catch( err => this.notifyError(JSON.stringify(err)));
+      .catch( err => this.notifyError(err));
 
       window.electron.getFile({path:'/settings.json'})
       .then(res => JSON.parse(res.contents))
@@ -78,7 +78,7 @@ class Storage {
         this.setSettings(res);
 
       })
-      .catch( err => this.notifyError( JSON.stringify(err) ))
+      .catch( err => this.notifyError( err ))
     }
     
     setActiveInvoice(inv:Invoice){
@@ -175,12 +175,15 @@ class Storage {
       this.notifications.forEach( n => n.isFirst=false);
       this.notifications[0].isFirst = true;
 
-      console.log(this.notifications);
-      
     }
 
-    notifyError(text:string) {
-      this.notify({type:'Error', text});
+    notifyError(err:string|object) {
+
+      console.log('error', err);
+      
+      err = typeof err == 'object'  ? JSON.stringify(err) : err;
+
+      this.notify({type:'Error', text: err});
     }
 
     deleteMessage(id:string){

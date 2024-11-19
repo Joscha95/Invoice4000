@@ -80,7 +80,7 @@
     position: relative;
     padding: var(--site-padding);
     /* background-color: var(--middlegray); */
-    border-radius:var(--border-radius-small);
+    border-radius:var(--radius);
     width:100%;
     box-sizing: border-box;
   }
@@ -104,7 +104,7 @@
   }
 
   .invoices{
-    border-radius:var(--border-radius-small)
+    border-radius:var(--radius)
   }
 
   .client_new{

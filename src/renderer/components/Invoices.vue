@@ -1,7 +1,7 @@
 <template>
 <div v-if="store.hasClients" @click="store.newQuote()" class="button black" style="--bg-col:white;"> <span>+</span> </div>
 
-<section v-for="(group, key) in invoicesGrouped" :key="key">
+<section v-for="[key, group] in invoicesGrouped" :key="key">
   <div class="sum">{{key}}: {{group.sum.toLocaleString('de-DE')}}E</div>
   <invoices-grid :invoices="group.invoices" :hideAdd="true"/>
 </section>
@@ -10,9 +10,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ComputedRef } from 'vue';
 import store from '../store'
 import invoicesGrid from './subcomponents/invoices-grid.vue' ;
+import Invoice from '../classes/Invoice';
 
 
 export interface Props {
@@ -23,9 +24,16 @@ const props = withDefaults(defineProps<Props>(),{
   groupBy:1
 })
 
-const invoicesGrouped = computed(()=>{
+type groupedObject = {
+  invoices: Invoice[],
+  sum: number
+}
+
+const invoicesGrouped:ComputedRef<Map<string,groupedObject>> = computed(()=>{
   
-  const m:any = {};
+  const m:{
+    [key:string]:groupedObject
+  } = {};
 
   store.invoices.forEach(i => {
     const k = i.date.split('.')[props.groupBy+1];
@@ -40,7 +48,12 @@ const invoicesGrouped = computed(()=>{
     }
   });
 
-  return m;
+  // const object = { a: 1, b: 2, c: 3 };
+  // for (const [key, value] of Object.entries(object)) {
+  //     console.log(`Key: ${key}, Value: ${value}`);
+  // }
+
+  return new Map(Object.entries(m).sort().reverse());
 })
 </script>
 

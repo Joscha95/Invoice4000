@@ -63,7 +63,7 @@ export default {
       border-style: inset;
       outline:none;
       font-family: inherit;
-      /* border-radius:var(--border-radius-small); */
+      /* border-radius:var(--radius); */
     }
 
     textarea:focus{

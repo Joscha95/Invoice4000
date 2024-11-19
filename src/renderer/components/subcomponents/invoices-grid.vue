@@ -54,19 +54,19 @@ import store from '../../store'
   box-sizing: border-box;
   user-select: none;
   cursor: pointer;
-  border-radius: var(--border-radius-small);
+  border-radius: var(--radius);
   box-shadow: var(--shadow);
-  border-radius: var(--border-radius-small);
+  border-radius: var(--radius);
 }
 
 .invoice_new{
   text-align: center;
   color: white;
-  background-color: black;
+  background-color: var(--black);
 }
 
 .quote {
-  color:var(--bg-col)
+  color:var(--text-inactive)
 }
 
 </style>

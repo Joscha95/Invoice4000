@@ -30,7 +30,7 @@ export default {
     background-color: white;
     position: absolute;
     bottom: 0;
-    left: 13em;
+    left: 14em;
     top: 0;
     right: 0;
     padding-top: var(--padding-top);

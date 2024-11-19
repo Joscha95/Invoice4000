@@ -128,6 +128,7 @@ function changeClient(e:Event){
   left:50%;
   transform: translateX(-50%) translateY(0);
   opacity: 1;
+  border-radius: var(--radius);
 }
 
 .invoice-fade-enter-from  .ie_form,
@@ -165,8 +166,20 @@ h1{
 }
 
 thead th{
-  border-bottom: 1px solid black;
   box-sizing: border-box;
+}
+
+thead tr{
+  position: relative;
+}
+thead tr::after{
+  content: '';
+  width:100%;
+  left:0;
+  bottom:0;
+  display: block;
+  position: absolute;
+  border-bottom: var(--border);
 }
 
 table{

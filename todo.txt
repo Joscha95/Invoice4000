@@ -7,6 +7,10 @@
 
 - wenn neuer client direkt öffnen + in edit mode
 
+- mehrere mehrwertsteuersätze
+- währung eintragen pro Rechnung
+- new app icon (too big)
+
 - pdf creation: 
   - rotate
   - line height

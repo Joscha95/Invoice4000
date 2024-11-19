@@ -97,8 +97,6 @@ class FigmaFile{
 
     this.invoiceLayouts.forEach( inv => inv.quoteLayout = this.quoteLayouts.get(inv.title))
     
-    console.log(this.quoteLayouts);
-    
   }
 
   setFontMap(key:string,value:string){

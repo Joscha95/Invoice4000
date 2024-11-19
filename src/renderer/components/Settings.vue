@@ -1,18 +1,23 @@
 <template>
   <div id="settings">
   <table>
-    <tr>
-      <td>Figma Access token </td>
-      <td><basic-input v-model="store.settings.figmaAccessToken" :edit="true" :big="true"/></td>
-    </tr>
-    <tr>
-      <td>Figma File Id </td>
-      <td><basic-input v-model="store.settings.figmaFileId" :edit="true" :big="true"/></td>
-    </tr>
-    <tr>
-      <td> </td>
-      <td> <div :class="{button:true,black:true, inactive: loading}" @click="loadLayout">load layout</div></td>
-    </tr>
+    <tbody>
+
+      <tr>
+        <td>Figma Access token </td>
+        <td><basic-input v-model="store.settings.figmaAccessToken" :edit="true" :big="true"/></td>
+      </tr>
+      <tr>
+        <td>Figma File Id </td>
+        <td><basic-input v-model="store.settings.figmaFileId" :edit="true" :big="true"/></td>
+      </tr>
+      <tr>
+        <td> </td>
+        <td> <div :class="{button:true,black:true, inactive: loading}" @click="loadLayout">load layout</div></td>
+      </tr>
+      
+    </tbody>
+
   </table>
 
   <div v-if="layoutErr != null">{{ layoutErr.err }}</div>

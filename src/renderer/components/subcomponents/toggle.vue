@@ -31,6 +31,9 @@ export default {
 	vertical-align: top;
 	color: inherit;
 	margin-bottom: 0;
+  background-color: rgb(255, 255, 255);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
 .iconToggle {
 	line-height: 0;
@@ -48,7 +51,7 @@ export default {
   background-color: transparent;
 }
 .round{
-  border-radius:var(--border-radius-small);
+  border-radius:var(--radius);
 }
 .slider:hover {
 	opacity: var(--hover-opacity);
@@ -56,19 +59,21 @@ export default {
 .slider:after {
 	position: absolute;
 	content: '';
-	height: 100%;
-	width: 50%;
+	height: calc(100% - 6px);
+	width: calc(50% - 6px);
 	left: 0;
+  margin:3px;
 	top: 0;
-	background-color: black;
+	background-color: var(--black);
 	transition: left .2s;
 	z-index: 0;
 	box-sizing: border-box;
 	box-shadow: var(--shadow);
 	border-right: var(--border);
+  border-radius: var(--radius);
 }
 .slider:hover:after, input:checked + .slider:hover:after {
-	border-color: black;
+	border-color: var(--black);
 }
 .slider>span{
 	position: relative;

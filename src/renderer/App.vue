@@ -84,10 +84,10 @@ onMounted(() => {
   } */
 
   :root{
-    --lightgray: #FAFAFA ;
+    --lightgray: #f9f9f9 ;
     --middlegray: #ECECEC ;
     --gray:rgb(200,200,200);
-    --lightgray:rgb(252, 252, 252);
+    --black: rgb(22, 22, 22);
     --lightblue:rgb(227, 227, 227) ;
     --lightgreen:rgb(213, 235, 213) ;
     --anthrazite: rgb(40, 40, 40);
@@ -97,13 +97,15 @@ onMounted(() => {
     --Neutral-col: white;
     --Warning-col: rgb(255, 128, 0);
     --Error-col: rgb(255, 0, 0);
-    --border: 1px solid black;
+    --border: .5px solid black;
+    --text-inactive:rgb(181, 181, 181);
+    --color-invoice:#0073c5;
 
     --fs0: .9rem;
     /* --fs1: calc(var(--fs0)*.9); */
     /* --fs2: calc(var(--fs0)*.7); */
 
-    --border-radius-small: 3px;
+    --radius: 3px;
 
     --shadow: 0 0 7px rgba(0,0,0,.1);
 
@@ -116,6 +118,7 @@ onMounted(() => {
 
   body{
     line-height: 1.5;
+    color:var(--black);
   }
 
   html,body,#app{
@@ -175,7 +178,7 @@ onMounted(() => {
     padding: .4em .8em;
     box-sizing: border-box;
     cursor: pointer;
-    border-radius: var(--border-radius-small);
+    border-radius: var(--radius);
     display: inline-block;
   }
 
@@ -186,7 +189,7 @@ onMounted(() => {
   }
 
   .button.black{
-    background-color: black;
+    background-color: var(--black);
     color:white;
   }
 
@@ -218,7 +221,7 @@ onMounted(() => {
 
   .help{
     font-size: var(--fs2);
-    color:#c8c8c8
+    color:var(--text-inactive)
   }
 
   .client_row{
